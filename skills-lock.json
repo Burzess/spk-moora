@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-ui-dark-ts": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-ui-dark-ts/SKILL.md",
+      "computedHash": "76bfc541c5e11c648928afca5fd85fa8c561aca76bd3ae5a16b68fa4ed5c7a78"
+    },
+    "tanstack-query-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tanstack-query-expert/SKILL.md",
+      "computedHash": "06a1a73e5c624fb6118c343ec736ebf708202742ce7895cdfd156bd69cdea96c"
+    },
+    "typescript-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/typescript-expert/SKILL.md",
+      "computedHash": "b4623290742a2319a2c6aca09c62438a796c399f65aac6facd7273f9b144c8e7"
+    },
+    "typescript-pro": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/typescript-pro/SKILL.md",
+      "computedHash": "37b501053e5835589d6e66cd2fc831f0fa277e8705b7edb4954bbb3fe0c5ef73"
+    },
+    "using-neon": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/using-neon/SKILL.md",
+      "computedHash": "e417314be2210c241c9feafa9341040ce20137fb2bae49ee1ba443e5a71b1f21"
+    },
+    "uxui-principles": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/uxui-principles/SKILL.md",
+      "computedHash": "aced134820a97bff3d18389afff009d3ee329e87716ae83a988fb6e3bd29d8c3"
+    },
+    "web-artifacts-builder": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-artifacts-builder/SKILL.md",
+      "computedHash": "59946c36c328d8f26507b370178b1b8460ddce8e343c31dae612322ab2602166"
+    },
+    "web-performance-optimization": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-performance-optimization/SKILL.md",
+      "computedHash": "0029efc4e76171aa37b9cd3d2d040e601b3e70de791f2aac019a80483e47de35"
+    }
+  }
+}

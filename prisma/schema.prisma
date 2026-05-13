@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Criteria {
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  name        String
+  type        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  subCriteria SubCriteria[]
+  evaluations Evaluation[]
+
+  @@map("criteria")
+}
+
+model SubCriteria {
+  id         Int      @id @default(autoincrement())
+  criteriaId Int
+  name       String
+  value      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  criteria Criteria @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
+
+  @@index([criteriaId])
+  @@map("sub_criteria")
+}
+
+model Alternative {
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  name        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  evaluations Evaluation[]
+
+  @@map("alternatives")
+}
+
+model Evaluation {
+  id            Int         @id @default(autoincrement())
+  alternativeId Int
+  criteriaId    Int
+  value         Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  alternative Alternative @relation(fields: [alternativeId], references: [id], onDelete: Cascade)
+  criteria    Criteria    @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
+
+  @@unique([alternativeId, criteriaId])
+  @@index([criteriaId])
+  @@map("evaluations")
+}
+
+model Account {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("accounts")
+}
