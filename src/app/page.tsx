@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Calculator, LogIn, Map } from "lucide-react";
+import { Calculator, Map } from "lucide-react";
 
 import { PublicCalculator } from "@/app/public-calculator";
 import { prisma } from "@/lib/prisma";

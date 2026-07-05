@@ -1,14 +1,11 @@
 "use client";
 
-import { ListChecks, Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 
 import {
   createCriteriaAction,
-  createSubCriteriaAction,
   deleteCriteriaAction,
-  deleteSubCriteriaAction,
   updateCriteriaAction,
-  updateSubCriteriaAction,
 } from "@/app/actions";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
@@ -98,105 +95,6 @@ function CriteriaFormFields({
   );
 }
 
-function SubCriteriaManager({
-  criterion,
-}: {
-  criterion: {
-    id: number;
-    code: string;
-    name: string;
-    subCriteria: Array<{
-      id: number;
-      name: string;
-      value: number;
-    }>;
-  };
-}) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="secondary" size="sm" className="gap-1.5">
-          <ListChecks className="size-3.5" />
-          Sub-Kriteria
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
-            Kelola Sub-Kriteria {criterion.code}
-          </DialogTitle>
-          <DialogDescription>
-            Atur daftar sub-kriteria untuk {criterion.name}.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div className="rounded-lg border p-4">
-            <p className="mb-3 text-sm font-medium">Tambah Sub-Kriteria</p>
-            <ActionForm
-              action={createSubCriteriaAction}
-              className="grid gap-2 md:grid-cols-[1fr_130px_auto]"
-            >
-              <input type="hidden" name="criteriaId" value={criterion.id} />
-              <Input name="name" placeholder="Contoh: Sangat Baik" required />
-              <Input
-                name="value"
-                type="number"
-                min={1}
-                max={5}
-                placeholder="1-5"
-                required
-              />
-              <SubmitButton>Tambah</SubmitButton>
-            </ActionForm>
-          </div>
-
-          <div className="rounded-lg border p-4">
-            <p className="mb-3 text-sm font-medium">Daftar Sub-Kriteria</p>
-
-            {criterion.subCriteria.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Belum ada sub-kriteria.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {criterion.subCriteria.map((sub) => (
-                  <div
-                    key={sub.id}
-                    className="grid gap-2 rounded-lg border p-3 md:grid-cols-[1fr_120px_auto_auto]"
-                  >
-                    <ActionForm action={updateSubCriteriaAction} className="contents">
-                      <input type="hidden" name="id" value={sub.id} />
-                      <Input name="name" defaultValue={sub.name} required />
-                      <Input
-                        name="value"
-                        type="number"
-                        min={1}
-                        max={5}
-                        defaultValue={sub.value}
-                        required
-                      />
-                      <SubmitButton variant="outline">
-                        Update
-                      </SubmitButton>
-                    </ActionForm>
-
-                    <ActionForm action={deleteSubCriteriaAction} className="contents">
-                      <input type="hidden" name="id" value={sub.id} />
-                      <SubmitButton variant="destructive" pendingText="Menghapus...">
-                        Hapus
-                      </SubmitButton>
-                    </ActionForm>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export function CriteriaTable({ criteria }: CriteriaTableProps) {
   return (
@@ -264,8 +162,6 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
-                      <SubCriteriaManager criterion={criterion} />
-
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="outline" size="sm" className="gap-1.5">

@@ -4,7 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { CheckCircle2, AlertCircle, X } from "lucide-react";
 
 interface ActionFormProps extends Omit<React.FormHTMLAttributes<HTMLFormElement>, "action"> {
-  action: (prevState: any, formData: FormData) => Promise<{ success?: boolean; message?: string; error?: string }>;
+  action: (prevState: unknown, formData: FormData) => Promise<{ success?: boolean; message?: string; error?: string }>;
 }
 
 export function ActionForm({ action, children, ...props }: ActionFormProps) {
@@ -13,9 +13,12 @@ export function ActionForm({ action, children, ...props }: ActionFormProps) {
 
   useEffect(() => {
     if (state.success || state.error) {
-      setShowMessage(true);
-      const timer = setTimeout(() => setShowMessage(false), 5000);
-      return () => clearTimeout(timer);
+      const startTimer = setTimeout(() => setShowMessage(true), 0);
+      const endTimer = setTimeout(() => setShowMessage(false), 5000);
+      return () => {
+        clearTimeout(startTimer);
+        clearTimeout(endTimer);
+      };
     }
   }, [state]);
 

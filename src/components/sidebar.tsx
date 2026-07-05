@@ -6,6 +6,7 @@ import {
     LayoutDashboard,
     ListChecks,
     MapPin,
+    CheckSquare,
     Table2,
     Calculator,
     LogOut,
@@ -20,6 +21,7 @@ const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/dashboard/kriteria", label: "Kriteria", icon: ListChecks },
     { href: "/dashboard/alternatif", label: "Alternatif", icon: MapPin },
+    { href: "/dashboard/sub-alternatif", label: "Sub Alternatif", icon: CheckSquare },
     { href: "/dashboard/penilaian", label: "Penilaian", icon: Table2 },
     { href: "/dashboard/hasil", label: "Hasil MOORA", icon: Calculator },
 ];

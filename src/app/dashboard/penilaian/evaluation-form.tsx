@@ -20,9 +20,12 @@ export function EvaluationForm({ children }: EvaluationFormProps) {
 
   useEffect(() => {
     if (state.success || state.error) {
-      setShowMessage(true);
-      const timer = setTimeout(() => setShowMessage(false), 5000);
-      return () => clearTimeout(timer);
+      const startTimer = setTimeout(() => setShowMessage(true), 0);
+      const endTimer = setTimeout(() => setShowMessage(false), 5000);
+      return () => {
+        clearTimeout(startTimer);
+        clearTimeout(endTimer);
+      };
     }
   }, [state]);
 

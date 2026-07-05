@@ -246,7 +246,7 @@ export async function logoutAdminAction() {
     redirect("/login");
 }
 
-export async function createCriteriaAction(_prevState: any, formData: FormData) {
+export async function createCriteriaAction(_prevState: unknown, formData: FormData) {
     try {
         await requireAdmin();
 
@@ -270,7 +270,7 @@ export async function createCriteriaAction(_prevState: any, formData: FormData) 
     }
 }
 
-export async function updateCriteriaAction(_prevState: any, formData: FormData) {
+export async function updateCriteriaAction(_prevState: unknown, formData: FormData) {
     try {
         await requireAdmin();
 
@@ -301,7 +301,7 @@ export async function updateCriteriaAction(_prevState: any, formData: FormData) 
     }
 }
 
-export async function deleteCriteriaAction(_prevState: any, formData: FormData) {
+export async function deleteCriteriaAction(_prevState: unknown, formData: FormData) {
     try {
         await requireAdmin();
 
@@ -322,88 +322,63 @@ export async function deleteCriteriaAction(_prevState: any, formData: FormData) 
     }
 }
 
-export async function createSubCriteriaAction(_prevState: any, formData: FormData) {
+export async function saveSubAlternativeAction(_prevState: unknown, formData: FormData) {
     try {
         await requireAdmin();
 
-        const criteriaId = parseInteger(formData.get("criteriaId"));
-        if (!criteriaId) {
-            throw new Error("Kriteria tidak valid.");
+        const alternativeId = parseInteger(formData.get("alternativeId"));
+        if (!alternativeId) {
+            throw new Error("Alternatif tidak valid.");
         }
 
-        const name = parseRequiredText(formData.get("name"), "Nama sub-kriteria");
-        const value = parseInteger(formData.get("value"));
-        if (!value || value < 1 || value > 5) {
-            throw new Error("Nilai sub-kriteria harus antara 1 sampai 5.");
-        }
-
-        await prisma.subCriteria.create({
-            data: {
-                criteriaId,
-                name,
-                value,
-            },
+        const criteria = await prisma.criteria.findMany({
+            select: { id: true },
         });
 
-        revalidatePath("/dashboard/kriteria");
-        revalidatePath("/dashboard/penilaian");
-        return { success: true, message: "Sub-kriteria berhasil ditambahkan." };
-    } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : "Gagal menyimpan." };
-    }
-}
+        const upsertQueries = criteria.map((criterion) => {
+            const valStr = formData.get(`criteria_${criterion.id}_value`);
+            const indStr = formData.get(`criteria_${criterion.id}_indicators`);
+            
+            const value = parseInteger(valStr) ?? 1;
+            const indicatorIds = typeof indStr === "string" ? indStr : "[]";
 
-export async function updateSubCriteriaAction(_prevState: any, formData: FormData) {
-    try {
-        await requireAdmin();
-
-        const id = parseInteger(formData.get("id"));
-        if (!id) {
-            throw new Error("ID sub-kriteria tidak valid.");
-        }
-
-        const name = parseRequiredText(formData.get("name"), "Nama sub-kriteria");
-        const value = parseInteger(formData.get("value"));
-        if (!value || value < 1 || value > 5) {
-            throw new Error("Nilai sub-kriteria harus antara 1 sampai 5.");
-        }
-
-        await prisma.subCriteria.update({
-            where: { id },
-            data: {
-                name,
-                value,
-            },
+            return prisma.evaluation.upsert({
+                where: {
+                    alternativeId_criteriaId: {
+                        alternativeId,
+                        criteriaId: criterion.id,
+                    },
+                },
+                update: {
+                    value,
+                    indicatorIds,
+                },
+                create: {
+                    alternativeId,
+                    criteriaId: criterion.id,
+                    value,
+                    indicatorIds,
+                },
+            });
         });
 
-        revalidatePath("/dashboard/kriteria");
+        await prisma.$transaction(upsertQueries);
+
+        revalidatePath("/dashboard/sub-alternatif");
         revalidatePath("/dashboard/penilaian");
-        return { success: true, message: "Sub-kriteria berhasil diupdate." };
+        revalidatePath("/dashboard/hasil");
+        revalidatePath("/");
+
+        return { success: true, message: "Indikator sub alternatif dan normalisasi berhasil disimpan." };
     } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : "Gagal mengupdate." };
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Terjadi kesalahan.",
+        };
     }
 }
 
-export async function deleteSubCriteriaAction(_prevState: any, formData: FormData) {
-    try {
-        await requireAdmin();
-
-        const id = parseInteger(formData.get("id"));
-        if (!id) {
-            throw new Error("ID sub-kriteria tidak valid.");
-        }
-
-        await prisma.subCriteria.delete({ where: { id } });
-
-        revalidatePath("/dashboard/kriteria");
-        revalidatePath("/dashboard/penilaian");
-        return { success: true, message: "Sub-kriteria berhasil dihapus." };
-    } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : "Gagal menghapus." };
-    }
-}
-
-export async function createAlternativeAction(_prevState: any, formData: FormData) {
+export async function createAlternativeAction(_prevState: unknown, formData: FormData) {
     try {
         await requireAdmin();
 
@@ -426,7 +401,7 @@ export async function createAlternativeAction(_prevState: any, formData: FormDat
     }
 }
 
-export async function updateAlternativeAction(_prevState: any, formData: FormData) {
+export async function updateAlternativeAction(_prevState: unknown, formData: FormData) {
     try {
         await requireAdmin();
 
@@ -456,7 +431,7 @@ export async function updateAlternativeAction(_prevState: any, formData: FormDat
     }
 }
 
-export async function deleteAlternativeAction(_prevState: any, formData: FormData) {
+export async function deleteAlternativeAction(_prevState: unknown, formData: FormData) {
     try {
         await requireAdmin();
 
