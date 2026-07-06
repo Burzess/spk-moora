@@ -37,7 +37,7 @@ Skema Prisma utama:
 
 - `Account`
 - `Criteria`
-- `SubCriteria`
+- `SubAlternative`
 - `Alternative`
 - `Evaluation`
 

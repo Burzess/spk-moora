@@ -19,7 +19,7 @@ interface SubAlternativeFormProps {
     code: string;
     name: string;
     type: string;
-    subCriteria: Array<{
+    subAlternatives: Array<{
       id: number;
       name: string;
       value: number;
@@ -62,19 +62,19 @@ export function SubAlternativeForm({
         if (criterion.type === "BENEFIT") {
           // For benefit (3 indicators): val 5 -> 3 checked, val 3 -> 2 checked, val 1 -> 1 checked
           const count = val >= 5 ? 3 : val >= 3 ? 2 : 1;
-          initial[criterion.id] = criterion.subCriteria.slice(0, count).map((sub) => sub.id);
+          initial[criterion.id] = criterion.subAlternatives.slice(0, count).map((sub) => sub.id);
         } else {
           // For cost (Biaya sewa, 5 options): pick option index val-1
-          const idx = Math.max(0, Math.min(val - 1, criterion.subCriteria.length - 1));
-          if (criterion.subCriteria[idx]) {
-            initial[criterion.id] = [criterion.subCriteria[idx].id];
+          const idx = Math.max(0, Math.min(val - 1, criterion.subAlternatives.length - 1));
+          if (criterion.subAlternatives[idx]) {
+            initial[criterion.id] = [criterion.subAlternatives[idx].id];
           } else {
-            initial[criterion.id] = criterion.subCriteria.slice(0, 1).map((s) => s.id);
+            initial[criterion.id] = criterion.subAlternatives.slice(0, 1).map((s) => s.id);
           }
         }
       } else {
         // Default: first indicator checked
-        initial[criterion.id] = criterion.subCriteria.slice(0, 1).map((s) => s.id);
+        initial[criterion.id] = criterion.subAlternatives.slice(0, 1).map((s) => s.id);
       }
     }
 
@@ -104,9 +104,9 @@ export function SubAlternativeForm({
   const getNormalizedScore = (criterion: SubAlternativeFormProps["criteria"][0]) => {
     const checked = selectedIndicators[criterion.id] || [];
     if (criterion.type === "COST") {
-      // For Biaya Sewa: find selected subCriteria index
+      // For Biaya Sewa: find selected subAlternatives index
       if (checked.length === 0) return 1;
-      const idx = criterion.subCriteria.findIndex((sub) => sub.id === checked[0]);
+      const idx = criterion.subAlternatives.findIndex((sub) => sub.id === checked[0]);
       return idx !== -1 ? idx + 1 : 1;
     } else {
       // For BENEFIT (3 indicators): 3 checked -> 5 (Sangat Baik), 2 checked -> 3 (Baik), <=1 checked -> 1 (Kurang)
@@ -194,7 +194,7 @@ export function SubAlternativeForm({
                         : "Centang indikator yang terpenuhi di lokasi ini:"}
                     </p>
 
-                    {criterion.subCriteria.map((sub, index) => {
+                    {criterion.subAlternatives.map((sub, index) => {
                       const isChecked = checkedIds.includes(sub.id);
                       return (
                         <div

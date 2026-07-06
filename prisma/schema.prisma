@@ -15,13 +15,13 @@ model Criteria {
   type        String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  subCriteria SubCriteria[]
+  subAlternatives SubAlternative[]
   evaluations Evaluation[]
 
   @@map("criteria")
 }
 
-model SubCriteria {
+model SubAlternative {
   id         Int      @id @default(autoincrement())
   criteriaId Int
   name       String
@@ -32,7 +32,7 @@ model SubCriteria {
   criteria Criteria @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
 
   @@index([criteriaId])
-  @@map("sub_criteria")
+  @@map("sub_alternatives")
 }
 
 model Alternative {

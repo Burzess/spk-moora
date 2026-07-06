@@ -16,7 +16,7 @@ Saat pengembangan sistem terbaru, alur kerja diubah dari yang semula fokus pada 
    - Setelah indikator dicentang dan disimpan, sistem otomatis melakukan normalisasi menjadi angka skala 1–5 yang langsung tampil pada matriks **Penilaian (`/dashboard/penilaian`)**.
 
 2. **Di Tingkat Database Fisik (PostgreSQL & Prisma):**
-   - **Tabel `sub_criteria`**: Berfungsi sebagai penyimpan daftar indikator/opsi Sub Alternatif tersebut. Karena secara struktur indikator-indikator ini memang merupakan turunan standar dari masing-masing Kriteria (`criteriaId`), tabel ini dipertahankan namanya di database demi stabilitas dan relasi yang optimal.
+   - **Tabel `sub_alternatives`**: Berfungsi sebagai penyimpan daftar indikator/opsi Sub Alternatif tersebut. Secara struktur indikator-indikator ini merupakan turunan standar dari masing-masing Kriteria (`criteriaId`).
    - **Tabel `evaluations`**: Memiliki kolom baru yaitu **`indicatorIds` (bertipe `text`)** untuk merekam riwayat ID indikator apa saja yang dicentang oleh user untuk jalan tersebut dalam bentuk JSON Array (contoh: `"[1, 2, 3]"`), sekaligus menyimpan skor hasil normalisasinya di kolom **`value`**.
 
 Dengan arsitektur ini, sistem menjadi sangat efisien, bersih, dan tidak memerlukan tabel redundan di database.
@@ -29,7 +29,7 @@ Dengan arsitektur ini, sistem menjadi sangat efisien, bersih, dan tidak memerluk
 
 ```mermaid
 erDiagram
-    Criteria ||--o{ SubCriteria : "memiliki indikator (Sub Alternatif)"
+    Criteria ||--o{ SubAlternative : "memiliki indikator (Sub Alternatif)"
     Criteria ||--o{ Evaluation : "menjadi dasar skor"
     Alternative ||--o{ Evaluation : "dinilai melalui"
 
@@ -40,7 +40,7 @@ erDiagram
         String type "BENEFIT / COST"
     }
 
-    SubCriteria {
+    SubAlternative {
         Int id PK
         Int criteriaId FK
         String name "Teks Indikator (Opsi Sub Alternatif)"
@@ -76,7 +76,7 @@ erDiagram
 
 ```mermaid
 erDiagram
-    criteria ||--o{ sub_criteria : "has_many (ON DELETE CASCADE)"
+    criteria ||--o{ sub_alternatives : "has_many (ON DELETE CASCADE)"
     criteria ||--o{ evaluations : "has_many (ON DELETE CASCADE)"
     alternatives ||--o{ evaluations : "has_many (ON DELETE CASCADE)"
 
@@ -89,7 +89,7 @@ erDiagram
         timestamp updatedAt
     }
 
-    sub_criteria {
+    sub_alternatives {
         integer id PK "Serial Auto-increment"
         integer criteriaId FK "Ref: criteria.id"
         text name "Teks Indikator / Opsi Sub Alternatif"
@@ -139,7 +139,7 @@ erDiagram
 | `createdAt` | `timestamp without time zone` | Waktu pencatatan data | Default: `CURRENT_TIMESTAMP`, Not Null |
 | `updatedAt` | `timestamp without time zone` | Waktu pembaharuan terakhir | Auto Updated, Not Null |
 
-### B. Tabel `sub_criteria` (Indikator & Opsi Sub Alternatif)
+### B. Tabel `sub_alternatives` (Indikator & Opsi Sub Alternatif)
 | Kolom | Tipe Data PostgreSQL Fisik | Keterangan | Aturan / Constraint |
 | :--- | :--- | :--- | :--- |
 | `id` | `integer / serial` | Identifier unik indikator/opsi | **PK**, Auto Increment |

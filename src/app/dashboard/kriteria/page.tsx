@@ -9,7 +9,7 @@ export default async function KriteriaPage() {
       code: true,
       name: true,
       type: true,
-      subCriteria: {
+      subAlternatives: {
         orderBy: [{ value: "asc" }, { name: "asc" }],
         select: {
           id: true,

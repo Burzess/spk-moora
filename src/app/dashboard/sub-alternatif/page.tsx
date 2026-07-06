@@ -16,7 +16,7 @@ export default async function SubAlternatifPage({ searchParams }: SubAlternatifP
     prisma.alternative.findMany({ orderBy: { code: "asc" } }),
     prisma.criteria.findMany({
       include: {
-        subCriteria: {
+        subAlternatives: {
           orderBy: [{ id: "asc" }],
         },
       },

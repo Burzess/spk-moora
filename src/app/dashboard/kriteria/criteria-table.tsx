@@ -38,7 +38,7 @@ interface CriteriaTableProps {
     code: string;
     name: string;
     type: string;
-    subCriteria: Array<{
+    subAlternatives: Array<{
       id: number;
       name: string;
       value: number;
