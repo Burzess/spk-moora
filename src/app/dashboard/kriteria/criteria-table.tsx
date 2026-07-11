@@ -79,7 +79,7 @@ function CriteriaFormFields({
 
       <div className="space-y-2">
         <Label htmlFor={criterion ? `type-${criterion.id}` : "type"}>
-          Benefit
+          Status
         </Label>
         <select
           id={criterion ? `type-${criterion.id}` : "type"}
@@ -87,8 +87,8 @@ function CriteriaFormFields({
           className="h-8 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
           defaultValue={criterion?.type ?? "BENEFIT"}
         >
-          <option value="BENEFIT">Ya (Benefit)</option>
-          <option value="COST">Tidak (Cost)</option>
+          <option value="BENEFIT">Benefit</option>
+          <option value="COST">Cost</option>
         </select>
       </div>
     </>
@@ -139,7 +139,7 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
             <TableRow>
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
-              <TableHead>Benefit</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="w-[320px] text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -157,7 +157,7 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
                   <TableCell>{criterion.name}</TableCell>
                   <TableCell>
                     <Badge variant={criterion.type === "BENEFIT" ? "default" : "secondary"}>
-                      {criterion.type === "BENEFIT" ? "Ya" : "Tidak"}
+                      {criterion.type === "BENEFIT" ? "Benefit" : "Cost"}
                     </Badge>
                   </TableCell>
                   <TableCell>

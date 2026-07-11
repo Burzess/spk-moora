@@ -60,8 +60,8 @@ export function SubAlternativeForm({
       if (evalItem) {
         const val = evalItem.value;
         if (criterion.type === "BENEFIT") {
-          // For benefit (3 indicators): val 5 -> 3 checked, val 3 -> 2 checked, val 1 -> 1 checked
-          const count = val >= 5 ? 3 : val >= 3 ? 2 : 1;
+          // For benefit (3 indicators): val 3 -> 3 checked, val 2 -> 2 checked, val 1 -> 1 checked
+          const count = val >= 3 ? 3 : val === 2 ? 2 : 1;
           initial[criterion.id] = criterion.subAlternatives.slice(0, count).map((sub) => sub.id);
         } else {
           // For cost (Biaya sewa, 5 options): pick option index val-1
@@ -109,10 +109,10 @@ export function SubAlternativeForm({
       const idx = criterion.subAlternatives.findIndex((sub) => sub.id === checked[0]);
       return idx !== -1 ? idx + 1 : 1;
     } else {
-      // For BENEFIT (3 indicators): 3 checked -> 5 (Sangat Baik), 2 checked -> 3 (Baik), <=1 checked -> 1 (Kurang)
+      // For BENEFIT (3 indicators): 3 checked -> 3 (Sangat Baik), 2 checked -> 2 (Baik), <=1 checked -> 1 (Kurang)
       const count = checked.length;
-      if (count >= 3) return 5;
-      if (count === 2) return 3;
+      if (count >= 3) return 3;
+      if (count === 2) return 2;
       return 1;
     }
   };
@@ -125,8 +125,8 @@ export function SubAlternativeForm({
       if (score === 4) return "Kurang Baik (> 60% – 80%)";
       return "Tidak Baik (> 80% / > Rp 1.400.001)";
     } else {
-      if (score === 5) return "Sangat Baik (3 Indikator Terpenuhi)";
-      if (score === 3) return "Baik (2 Indikator Terpenuhi)";
+      if (score === 3) return "Sangat Baik (3 Indikator Terpenuhi)";
+      if (score === 2) return "Baik (2 Indikator Terpenuhi)";
       return "Kurang (≤ 1 Indikator Terpenuhi)";
     }
   };
