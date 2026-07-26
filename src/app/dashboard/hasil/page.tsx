@@ -61,7 +61,18 @@ export default async function HasilPage() {
                       <tr key={row.alternativeId} className="border-b">
                         <td className="px-2 py-2 font-medium">{row.rank}</td>
                         <td className="px-2 py-2">{row.alternativeCode}</td>
-                        <td className="px-2 py-2">{row.alternativeName}</td>
+                        <td className="px-2 py-2">
+                          <div>{row.alternativeName}</div>
+                          {row.indicators && row.indicators.length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {row.indicators.map((indicator, idx) => (
+                                <Badge key={idx} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
+                                  {indicator}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </td>
                         <td className="px-2 py-2 text-right">{formatNumber(row.benefitSum)}</td>
                         <td className="px-2 py-2 text-right">{formatNumber(row.costSum)}</td>
                         <td className="px-2 py-2 text-right font-semibold">{formatNumber(row.yi)}</td>

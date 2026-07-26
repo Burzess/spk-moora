@@ -19,6 +19,7 @@ export interface MooraEvaluationInput {
     alternativeId: number;
     criteriaId: number;
     value: number;
+    indicatorNames?: string[];
 }
 
 export interface MooraRankingRow {
@@ -29,6 +30,7 @@ export interface MooraRankingRow {
     benefitSum: number;
     costSum: number;
     yi: number;
+    indicators: string[];
 }
 
 export interface MooraResult {
@@ -132,6 +134,14 @@ export function calculateMooraMatrix(
             }
         }
 
+        const indicators: string[] = [];
+        const altEvals = evaluations.filter(e => e.alternativeId === alternative.id);
+        altEvals.forEach(e => {
+            if (e.indicatorNames && e.indicatorNames.length > 0) {
+                indicators.push(...e.indicatorNames);
+            }
+        });
+
         return {
             rank: 0,
             alternativeId: alternative.id,
@@ -140,6 +150,7 @@ export function calculateMooraMatrix(
             benefitSum,
             costSum,
             yi: benefitSum - costSum,
+            indicators,
         } satisfies MooraRankingRow;
     });
 

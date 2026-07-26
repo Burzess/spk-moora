@@ -140,7 +140,29 @@ export async function calculateMoora(
             alternativeId: true,
             criteriaId: true,
             value: true,
+            indicatorIds: true,
         },
+    });
+
+    const allSubAlternatives = await prisma.subAlternative.findMany({
+        select: { id: true, name: true }
+    });
+    const subAltMap = new Map(allSubAlternatives.map(sa => [sa.id, sa.name]));
+
+    const evaluationsWithIndicators = evaluationRows.map(ev => {
+        let names: string[] = [];
+        try {
+            if (ev.indicatorIds) {
+                const ids = JSON.parse(ev.indicatorIds) as number[];
+                names = ids.map(id => subAltMap.get(id)).filter(Boolean) as string[];
+            }
+        } catch (e) {}
+        return {
+            alternativeId: ev.alternativeId,
+            criteriaId: ev.criteriaId,
+            value: ev.value,
+            indicatorNames: names
+        };
     });
 
     const criteria = criteriaFromDb.map((criterion, index) => {
@@ -165,7 +187,7 @@ export async function calculateMoora(
         name: alternative.name,
     }));
 
-    return calculateMooraMatrix(alternatives, criteria, evaluationRows);
+    return calculateMooraMatrix(alternatives, criteria, evaluationsWithIndicators);
 }
 
 export async function calculateMooraFromForm(

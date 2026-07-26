@@ -375,6 +375,15 @@ export function PublicCalculator({
                           <MapPin className="h-3 w-3" />
                           Lihat Peta
                         </a>
+                        {row.indicators && row.indicators.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {row.indicators.map((indicator, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
+                                {indicator}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell className="text-right text-emerald-600">
                         +{formatNumber(row.benefitSum)}
