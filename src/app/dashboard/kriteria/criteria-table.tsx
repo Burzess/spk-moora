@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
 import {
@@ -112,13 +113,105 @@ function CriteriaFormFields({
 }
 
 
+function CriteriaTableRow({ criterion }: { criterion: CriteriaTableProps["criteria"][0] }) {
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{criterion.code}</TableCell>
+      <TableCell>{criterion.name}</TableCell>
+      <TableCell>
+        <Badge variant={criterion.type === "BENEFIT" ? "default" : "secondary"}>
+          {criterion.type === "BENEFIT" ? "Benefit" : "Cost"}
+        </Badge>
+      </TableCell>
+      <TableCell>{criterion.weight}</TableCell>
+      <TableCell>
+        <div className="flex justify-end gap-2">
+          <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <Pencil className="size-3.5" />
+                Edit
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit Kriteria</DialogTitle>
+                <DialogDescription>
+                  Ubah data kriteria {criterion.code}.
+                </DialogDescription>
+              </DialogHeader>
+
+              <ActionForm action={updateCriteriaAction} onSuccess={() => setIsEditOpen(false)} className="space-y-4">
+                <input type="hidden" name="id" value={criterion.id} />
+                <CriteriaFormFields criterion={criterion} />
+
+                <div className="flex justify-end gap-2">
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">
+                      Batal
+                    </Button>
+                  </DialogClose>
+                  <SubmitButton variant="outline">
+                    Simpan Perubahan
+                  </SubmitButton>
+                </div>
+              </ActionForm>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+            <DialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="gap-1.5">
+                <Trash2 className="size-3.5" />
+                Hapus
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Hapus Kriteria</DialogTitle>
+                <DialogDescription>
+                  Yakin ingin menghapus kriteria{" "}
+                  <span className="font-medium text-foreground">
+                    {criterion.code} - {criterion.name}
+                  </span>
+                  ?
+                </DialogDescription>
+              </DialogHeader>
+
+              <ActionForm action={deleteCriteriaAction} onSuccess={() => setIsDeleteOpen(false)} className="space-y-4">
+                <input type="hidden" name="id" value={criterion.id} />
+
+                <div className="flex justify-end gap-2">
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">
+                      Batal
+                    </Button>
+                  </DialogClose>
+                  <SubmitButton variant="destructive" pendingText="Menghapus...">
+                    Ya, Hapus
+                  </SubmitButton>
+                </div>
+              </ActionForm>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export function CriteriaTable({ criteria }: CriteriaTableProps) {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3">
         <CardTitle>Daftar Kriteria</CardTitle>
 
-        <Dialog>
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="size-4" />
@@ -133,7 +226,7 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
               </DialogDescription>
             </DialogHeader>
 
-            <ActionForm action={createCriteriaAction} className="space-y-4">
+            <ActionForm action={createCriteriaAction} onSuccess={() => setIsCreateOpen(false)} className="space-y-4">
               <CriteriaFormFields />
 
               <div className="flex justify-end gap-2">
@@ -169,88 +262,7 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
               </TableRow>
             ) : (
               criteria.map((criterion) => (
-                <TableRow key={criterion.id}>
-                  <TableCell className="font-medium">{criterion.code}</TableCell>
-                  <TableCell>{criterion.name}</TableCell>
-                  <TableCell>
-                    <Badge variant={criterion.type === "BENEFIT" ? "default" : "secondary"}>
-                      {criterion.type === "BENEFIT" ? "Benefit" : "Cost"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{criterion.weight}</TableCell>
-                  <TableCell>
-                    <div className="flex justify-end gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="gap-1.5">
-                            <Pencil className="size-3.5" />
-                            Edit
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Edit Kriteria</DialogTitle>
-                            <DialogDescription>
-                              Ubah data kriteria {criterion.code}.
-                            </DialogDescription>
-                          </DialogHeader>
-
-                          <ActionForm action={updateCriteriaAction} className="space-y-4">
-                            <input type="hidden" name="id" value={criterion.id} />
-                            <CriteriaFormFields criterion={criterion} />
-
-                            <div className="flex justify-end gap-2">
-                              <DialogClose asChild>
-                                <Button type="button" variant="outline">
-                                  Batal
-                                </Button>
-                              </DialogClose>
-                              <SubmitButton variant="outline">
-                                Simpan Perubahan
-                              </SubmitButton>
-                            </div>
-                          </ActionForm>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="gap-1.5">
-                            <Trash2 className="size-3.5" />
-                            Hapus
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Hapus Kriteria</DialogTitle>
-                            <DialogDescription>
-                              Yakin ingin menghapus kriteria{" "}
-                              <span className="font-medium text-foreground">
-                                {criterion.code} - {criterion.name}
-                              </span>
-                              ?
-                            </DialogDescription>
-                          </DialogHeader>
-
-                          <ActionForm action={deleteCriteriaAction} className="space-y-4">
-                            <input type="hidden" name="id" value={criterion.id} />
-
-                            <div className="flex justify-end gap-2">
-                              <DialogClose asChild>
-                                <Button type="button" variant="outline">
-                                  Batal
-                                </Button>
-                              </DialogClose>
-                              <SubmitButton variant="destructive" pendingText="Menghapus...">
-                                Ya, Hapus
-                              </SubmitButton>
-                            </div>
-                          </ActionForm>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <CriteriaTableRow key={criterion.id} criterion={criterion} />
               ))
             )}
           </TableBody>

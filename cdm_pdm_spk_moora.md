@@ -28,44 +28,7 @@ Dengan arsitektur ini, sistem menjadi sangat efisien, bersih, dan tidak memerluk
 **Conceptual Data Model (CDM)** merepresentasikan struktur model domain logis yang ada dalam sistem (sesuai dengan definisi model di `schema.prisma`), menunjukkan relasi dan atribut utama tanpa detail teknis tipe data spesifik mesin database fisik.
 
 ```mermaid
-erDiagram
-    Criteria ||--o{ SubAlternative : "memiliki indikator (Sub Alternatif)"
-    Criteria ||--o{ Evaluation : "menjadi dasar skor"
-    Alternative ||--o{ Evaluation : "dinilai melalui"
-
-    Criteria {
-        Int id PK
-        String code UK "Kode Kriteria (C1-C5)"
-        String name "Nama Kriteria"
-        String type "BENEFIT / COST"
-    }
-
-    SubAlternative {
-        Int id PK
-        Int criteriaId FK
-        String name "Teks Indikator (Opsi Sub Alternatif)"
-        Int value "Skala Nilai Default (1-5)"
-    }
-
-    Alternative {
-        Int id PK
-        String code UK "Kode Alternatif (A1-A7)"
-        String name "Nama Jalan / Lokasi"
-    }
-
-    Evaluation {
-        Int id PK
-        Int alternativeId FK
-        Int criteriaId FK
-        Int value "Skor Normalisasi (1-5)"
-        String indicatorIds "Riwayat Indikator Terpilih (JSON)"
-    }
-
-    Account {
-        Int id PK
-        String username UK "Username Login Admin"
-        String password "Kata Sandi Terenkripsi"
-    }
+w
 ```
 
 ---
