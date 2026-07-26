@@ -253,12 +253,14 @@ export async function createCriteriaAction(_prevState: unknown, formData: FormDa
         const code = parseRequiredText(formData.get("code"), "Kode kriteria").toUpperCase();
         const name = parseRequiredText(formData.get("name"), "Nama kriteria");
         const type = parseCriteriaType(formData.get("type"));
+        const weight = parseFloatValue(formData.get("weight")) ?? 0;
 
         await prisma.criteria.create({
             data: {
                 code,
                 name,
                 type,
+                weight,
             },
         });
 
@@ -282,6 +284,7 @@ export async function updateCriteriaAction(_prevState: unknown, formData: FormDa
         const code = parseRequiredText(formData.get("code"), "Kode kriteria").toUpperCase();
         const name = parseRequiredText(formData.get("name"), "Nama kriteria");
         const type = parseCriteriaType(formData.get("type"));
+        const weight = parseFloatValue(formData.get("weight")) ?? 0;
 
         await prisma.criteria.update({
             where: { id },
@@ -289,6 +292,7 @@ export async function updateCriteriaAction(_prevState: unknown, formData: FormDa
                 code,
                 name,
                 type,
+                weight,
             },
         });
 
@@ -510,8 +514,9 @@ export async function saveAlternativeEvaluationsAction(
 export async function calculateAuditMoora() {
     await requireAdmin();
 
-    const criteriaCount = await prisma.criteria.count();
-    const auditWeights = getAuditWeights(criteriaCount);
+    const criteriaFromDb = await prisma.criteria.findMany({ orderBy: { code: "asc" } });
+    const criteriaCount = criteriaFromDb.length;
+    const auditWeights = criteriaFromDb.map((c) => c.weight);
     const alternatives = await prisma.alternative.findMany({ orderBy: { code: "asc" } });
 
     if (alternatives.length < 2 || criteriaCount === 0) {
@@ -530,9 +535,6 @@ export async function calculateAuditMoora() {
     return {
         result,
         weights: auditWeights,
-        message:
-            criteriaCount === DEFAULT_AUDIT_WEIGHTS.length
-                ? "Menggunakan bobot audit default 0.25, 0.15, 0.25, 0.10, 0.25."
-                : "Jumlah kriteria bukan 5, bobot audit disesuaikan merata.",
+        message: "Menggunakan bobot yang diatur pada halaman kriteria.",
     };
 }

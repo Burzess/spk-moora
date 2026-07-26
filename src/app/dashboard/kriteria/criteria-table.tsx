@@ -38,6 +38,7 @@ interface CriteriaTableProps {
     code: string;
     name: string;
     type: string;
+    weight: number;
     subAlternatives: Array<{
       id: number;
       name: string;
@@ -49,7 +50,7 @@ interface CriteriaTableProps {
 function CriteriaFormFields({
   criterion,
 }: {
-  criterion?: { id: number; code: string; name: string; type: string };
+  criterion?: { id: number; code: string; name: string; type: string; weight: number };
 }) {
   return (
     <>
@@ -90,6 +91,21 @@ function CriteriaFormFields({
           <option value="BENEFIT">Benefit</option>
           <option value="COST">Cost</option>
         </select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={criterion ? `weight-${criterion.id}` : "weight"}>
+          Bobot
+        </Label>
+        <Input
+          id={criterion ? `weight-${criterion.id}` : "weight"}
+          name="weight"
+          type="number"
+          step="0.001"
+          defaultValue={criterion?.weight ?? 0}
+          placeholder="0.2"
+          required
+        />
       </div>
     </>
   );
@@ -140,6 +156,7 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Bobot</TableHead>
               <TableHead className="w-[320px] text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -160,6 +177,7 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
                       {criterion.type === "BENEFIT" ? "Benefit" : "Cost"}
                     </Badge>
                   </TableCell>
+                  <TableCell>{criterion.weight}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
                       <Dialog>

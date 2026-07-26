@@ -75,7 +75,81 @@ export default async function HasilPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Matriks Normalisasi Berbobot</CardTitle>
+              <CardTitle>Matriks Keputusan (Decision Matrix)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="px-2 py-2 text-left">Alternatif</th>
+                      {audit.result.criteria.map((criterion) => (
+                        <th key={criterion.id} className="px-2 py-2 text-right">
+                          {criterion.code}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {audit.result.decisionMatrix.map((row, rowIndex) => (
+                      <tr key={audit.result!.alternatives[rowIndex].id} className="border-b">
+                        <td className="px-2 py-2">
+                          {audit.result!.alternatives[rowIndex].code} -{" "}
+                          {audit.result!.alternatives[rowIndex].name}
+                        </td>
+                        {row.map((value, columnIndex) => (
+                          <td key={columnIndex} className="px-2 py-2 text-right font-mono text-xs">
+                            {formatNumber(value)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Matriks Normalisasi (Normalized Matrix)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="px-2 py-2 text-left">Alternatif</th>
+                      {audit.result.criteria.map((criterion) => (
+                        <th key={criterion.id} className="px-2 py-2 text-right">
+                          {criterion.code}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {audit.result.normalizedMatrix.map((row, rowIndex) => (
+                      <tr key={audit.result!.alternatives[rowIndex].id} className="border-b">
+                        <td className="px-2 py-2">
+                          {audit.result!.alternatives[rowIndex].code} -{" "}
+                          {audit.result!.alternatives[rowIndex].name}
+                        </td>
+                        {row.map((value, columnIndex) => (
+                          <td key={columnIndex} className="px-2 py-2 text-right font-mono text-xs">
+                            {formatNumber(value)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Matriks Normalisasi Berbobot (Weighted Normalized Matrix)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -92,10 +166,10 @@ export default async function HasilPage() {
                   </thead>
                   <tbody>
                     {audit.result.weightedMatrix.map((row, rowIndex) => (
-                      <tr key={audit.result.alternatives[rowIndex].id} className="border-b">
+                      <tr key={audit.result!.alternatives[rowIndex].id} className="border-b">
                         <td className="px-2 py-2">
-                          {audit.result.alternatives[rowIndex].code} -{" "}
-                          {audit.result.alternatives[rowIndex].name}
+                          {audit.result!.alternatives[rowIndex].code} -{" "}
+                          {audit.result!.alternatives[rowIndex].name}
                         </td>
                         {row.map((value, columnIndex) => (
                           <td key={columnIndex} className="px-2 py-2 text-right font-mono text-xs">
