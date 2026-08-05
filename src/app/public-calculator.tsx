@@ -376,13 +376,20 @@ export function PublicCalculator({
                           Lihat Peta
                         </a>
                         {row.indicators && row.indicators.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {row.indicators.map((indicator, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
-                                {indicator}
-                              </Badge>
-                            ))}
-                          </div>
+                          <details className="mt-2 group">
+                            <summary className="text-[11px] text-muted-foreground cursor-pointer hover:text-foreground list-none flex items-center gap-1">
+                              <span className="border-b border-dashed border-muted-foreground/50 pb-0.5 group-open:border-transparent transition-colors">
+                                Lihat Indikator ({row.indicators.length})
+                              </span>
+                            </summary>
+                            <div className="mt-2 flex flex-wrap gap-1 max-h-[120px] overflow-y-auto pr-1">
+                              {row.indicators.map((indicator, idx) => (
+                                <Badge key={idx} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
+                                  {indicator}
+                                </Badge>
+                              ))}
+                            </div>
+                          </details>
                         )}
                       </TableCell>
                       <TableCell className="text-right text-emerald-600">
