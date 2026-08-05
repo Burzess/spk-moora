@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 const DEFAULT_PUBLIC_WEIGHTS = [0.25, 0.15, 0.25, 0.1, 0.25];
 
 export default async function HomePage() {
-  const [criteria, alternatives] = await Promise.all([
+  const [criteria, alternatives, subAlternatives] = await Promise.all([
     prisma.criteria.findMany({
       orderBy: { code: "asc" },
       select: {
