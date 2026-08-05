@@ -216,7 +216,7 @@ export function PublicCalculator({
                             <div className="max-h-[60vh] overflow-y-auto pr-2 mt-2">
                               {(alternative.indicators || []).length > 0 ? (
                                 <ul className="space-y-3">
-                                  {alternative.indicators.map((ind, i) => (
+                                  {(alternative.indicators || []).map((ind, i) => (
                                     <li key={i} className="flex items-start gap-2 text-sm text-foreground/90 bg-muted/50 p-3 rounded-lg border border-border/50">
                                       <CheckCircle2 className="size-4 mt-0.5 text-emerald-500 shrink-0" />
                                       <span className="leading-snug">{ind}</span>
@@ -440,7 +440,7 @@ export function PublicCalculator({
                             <div className="mt-4 max-h-[60vh] overflow-y-auto">
                               {(row.indicators || []).length > 0 ? (
                                 <div className="flex flex-wrap gap-2">
-                                  {row.indicators.map((indicator, idx) => (
+                                  {(row.indicators || []).map((indicator, idx) => (
                                     <Badge key={idx} variant="outline" className="font-normal text-xs bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800 px-2.5 py-1">
                                       <CheckCircle2 className="size-3 mr-1.5 inline-block" />
                                       {indicator}
