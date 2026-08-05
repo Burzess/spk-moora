@@ -137,7 +137,8 @@ export function calculateMooraMatrix(
         const indicators: string[] = [];
         const altEvals = evaluations.filter(e => e.alternativeId === alternative.id);
         altEvals.forEach(e => {
-            if (e.indicatorNames && e.indicatorNames.length > 0) {
+            const criterion = criteria.find(c => c.id === e.criteriaId);
+            if (criterion?.type !== "COST" && e.indicatorNames && e.indicatorNames.length > 0) {
                 indicators.push(...e.indicatorNames);
             }
         });
