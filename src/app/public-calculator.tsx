@@ -195,30 +195,32 @@ export function PublicCalculator({
                           Maps
                         </a>
                         
-                        {alternative.indicators && alternative.indicators.length > 0 && (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs font-medium text-blue-700 hover:text-blue-900 hover:bg-transparent dark:text-blue-300 dark:hover:text-blue-200">
-                                Lihat Indikator ({alternative.indicators.length})
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Indikator - {alternative.name}</DialogTitle>
-                                <DialogDescription>
-                                  Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="max-h-[60vh] overflow-y-auto pr-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-auto p-0 text-xs font-medium text-blue-700 hover:text-blue-900 hover:bg-transparent dark:text-blue-300 dark:hover:text-blue-200">
+                              Lihat Indikator ({(alternative.indicators || []).length})
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Indikator - {alternative.name}</DialogTitle>
+                              <DialogDescription>
+                                Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="max-h-[60vh] overflow-y-auto pr-2">
+                              {alternative.indicators && alternative.indicators.length > 0 ? (
                                 <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
                                   {alternative.indicators.map((ind, i) => (
                                     <li key={i}>{ind}</li>
                                   ))}
                                 </ul>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        )}
+                              ) : (
+                                <span className="text-sm text-muted-foreground">Tidak ada indikator benefit.</span>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </div>
@@ -406,32 +408,32 @@ export function PublicCalculator({
                         </a>
                       </TableCell>
                       <TableCell className="text-center">
-                        {row.indicators && row.indicators.length > 0 ? (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2">
-                                Lihat ({row.indicators.length})
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
-                                <DialogDescription>
-                                  Berikut adalah indikator yang dipenuhi oleh alternatif ini.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
-                                {row.indicators.map((indicator, idx) => (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-7 text-[11px] px-2">
+                              Lihat ({(row.indicators || []).length})
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
+                              <DialogDescription>
+                                Berikut adalah indikator yang dipenuhi oleh alternatif ini.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
+                              {(row.indicators || []).length > 0 ? (
+                                row.indicators.map((indicator, idx) => (
                                   <Badge key={idx} variant="secondary" className="font-normal text-xs">
                                     {indicator}
                                   </Badge>
-                                ))}
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">-</span>
-                        )}
+                                ))
+                              ) : (
+                                <span className="text-sm text-muted-foreground">Tidak ada indikator benefit.</span>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </TableCell>
                       <TableCell className="text-right text-emerald-600">
                         +{formatNumber(row.benefitSum)}

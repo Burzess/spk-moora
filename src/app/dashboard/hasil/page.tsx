@@ -135,30 +135,32 @@ export default async function HasilPage(
                           Maps
                         </a>
                         
-                        {alt.indicators && alt.indicators.length > 0 && (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs font-medium text-blue-700 hover:text-blue-900 hover:bg-transparent dark:text-blue-300 dark:hover:text-blue-200">
-                                Lihat Indikator ({alt.indicators.length})
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Indikator - {alt.name}</DialogTitle>
-                                <DialogDescription>
-                                  Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="max-h-[60vh] overflow-y-auto pr-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-auto p-0 text-xs font-medium text-blue-700 hover:text-blue-900 hover:bg-transparent dark:text-blue-300 dark:hover:text-blue-200">
+                              Lihat Indikator ({(alt.indicators || []).length})
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Indikator - {alt.name}</DialogTitle>
+                              <DialogDescription>
+                                Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="max-h-[60vh] overflow-y-auto pr-2">
+                              {(alt.indicators || []).length > 0 ? (
                                 <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
                                   {alt.indicators.map((ind, i) => (
                                     <li key={i}>{ind}</li>
                                   ))}
                                 </ul>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        )}
+                              ) : (
+                                <span className="text-sm text-muted-foreground">Tidak ada indikator benefit.</span>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </label>
@@ -217,32 +219,32 @@ export default async function HasilPage(
                           <div className="font-medium">{row.alternativeName}</div>
                         </td>
                         <td className="px-2 py-2 text-center">
-                          {row.indicators && row.indicators.length > 0 ? (
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-7 text-[11px] px-2">
-                                  Lihat ({row.indicators.length})
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
-                                  <DialogDescription>
-                                    Berikut adalah indikator yang dipenuhi oleh alternatif ini.
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
-                                  {row.indicators.map((indicator, idx) => (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2">
+                                Lihat ({(row.indicators || []).length})
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
+                                <DialogDescription>
+                                  Berikut adalah indikator yang dipenuhi oleh alternatif ini.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
+                                {(row.indicators || []).length > 0 ? (
+                                  row.indicators.map((indicator, idx) => (
                                     <Badge key={idx} variant="secondary" className="font-normal text-xs">
                                       {indicator}
                                     </Badge>
-                                  ))}
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">-</span>
-                          )}
+                                  ))
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">Tidak ada indikator benefit.</span>
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </td>
                         <td className="px-2 py-2 text-right">{formatNumber(row.benefitSum)}</td>
                         <td className="px-2 py-2 text-right">{formatNumber(row.costSum)}</td>
