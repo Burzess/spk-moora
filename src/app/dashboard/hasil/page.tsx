@@ -1,6 +1,7 @@
+import { prisma } from "@/lib/prisma";
 import { calculateAuditMoora } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,17 +19,74 @@ function formatNumber(value: number) {
   });
 }
 
-export default async function HasilPage() {
-  const audit = await calculateAuditMoora();
+export default async function HasilPage(
+  props: {
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+  }
+) {
+  const searchParams = await props.searchParams;
+  let selectedIds: number[] | undefined = undefined;
+  
+  if (searchParams?.alt) {
+    const alts = Array.isArray(searchParams.alt) ? searchParams.alt : [searchParams.alt];
+    selectedIds = alts.map(a => parseInt(a, 10)).filter(n => !isNaN(n));
+  }
+
+  const allAlternatives = await prisma.alternative.findMany({ orderBy: { code: "asc" } });
+
+  if (!selectedIds || selectedIds.length === 0) {
+    selectedIds = allAlternatives.map(a => a.id);
+  }
+
+  const audit = await calculateAuditMoora(selectedIds);
 
   return (
     <div className="space-y-6">
       <header className="rounded-xl border bg-card px-5 py-4">
         <h1 className="font-heading text-2xl font-semibold">Hasil Audit MOORA</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Perhitungan menggunakan seluruh alternatif dalam database.
+          Pilih alternatif yang ingin di-ranking menggunakan bobot kriteria.
         </p>
       </header>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pilih Alternatif</CardTitle>
+          <CardDescription>Pilih minimal 2 alternatif untuk dibandingkan.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form method="GET" className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {allAlternatives.map((alt) => {
+                const isSelected = selectedIds?.includes(alt.id);
+                return (
+                  <label
+                    key={alt.id}
+                    className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 shadow-sm hover:bg-accent ${
+                      isSelected ? "border-primary bg-primary/5" : ""
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      name="alt"
+                      value={alt.id}
+                      defaultChecked={isSelected}
+                      className="mt-1"
+                    />
+                    <div>
+                      <div className="font-medium text-sm leading-none">{alt.name}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">{alt.code}</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex justify-end">
+              <Button type="submit">Hitung Ranking</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

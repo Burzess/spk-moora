@@ -533,13 +533,22 @@ export async function saveAlternativeEvaluationsAction(
     }
 }
 
-export async function calculateAuditMoora() {
+export async function calculateAuditMoora(selectedIds?: number[]) {
     await requireAdmin();
 
     const criteriaFromDb = await prisma.criteria.findMany({ orderBy: { code: "asc" } });
     const criteriaCount = criteriaFromDb.length;
     const auditWeights = criteriaFromDb.map((c) => c.weight);
-    const alternatives = await prisma.alternative.findMany({ orderBy: { code: "asc" } });
+    
+    let alternativesQuery = {};
+    if (selectedIds && selectedIds.length > 0) {
+        alternativesQuery = { id: { in: selectedIds } };
+    }
+    
+    const alternatives = await prisma.alternative.findMany({ 
+        where: alternativesQuery,
+        orderBy: { code: "asc" } 
+    });
 
     if (alternatives.length < 2 || criteriaCount === 0) {
         return {
