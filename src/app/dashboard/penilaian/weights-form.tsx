@@ -64,7 +64,8 @@ export function WeightsForm({ criteria }: { criteria: Criteria[] }) {
                   type="number"
                   step="any"
                   min="0"
-                  value={weights[index] === 0 && weights.length > 0 ? "" : weights[index]}
+                  value={weights[index] === 0 ? "" : weights[index]}
+                  placeholder="misal: 80"
                   onChange={(e) => {
                     const newWeights = [...weights];
                     newWeights[index] = parseFloat(e.target.value) || 0;

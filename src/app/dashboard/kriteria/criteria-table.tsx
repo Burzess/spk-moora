@@ -94,23 +94,6 @@ function CriteriaFormFields({
         </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={criterion ? `weight-${criterion.id}` : "weight"}>
-          Bobot
-        </Label>
-        <Input
-          id={criterion ? `weight-${criterion.id}` : "weight"}
-          name="weight"
-          type="number"
-          step="any"
-          defaultValue={criterion?.weight ?? 0}
-          placeholder="misal: 60"
-          required
-        />
-        <p className="text-[10px] text-muted-foreground">
-          Masukkan bobot dalam skala bebas (misal 1-100). Akan otomatis dinormalisasi.
-        </p>
-      </div>
     </>
   );
 }
@@ -129,7 +112,6 @@ function CriteriaTableRow({ criterion }: { criterion: CriteriaTableProps["criter
           {criterion.type === "BENEFIT" ? "Benefit" : "Cost"}
         </Badge>
       </TableCell>
-      <TableCell>{criterion.weight}</TableCell>
       <TableCell>
         <div className="flex justify-end gap-2">
           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -252,7 +234,6 @@ export function CriteriaTable({ criteria }: CriteriaTableProps) {
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Bobot</TableHead>
               <TableHead className="w-[320px] text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>

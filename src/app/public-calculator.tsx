@@ -78,7 +78,7 @@ export function PublicCalculator({
   const [selectedIds, setSelectedIds] = useState<number[]>(
     alternatives.slice(0, 2).map((alternative) => alternative.id)
   );
-  const [weights, setWeights] = useState<number[]>(initialWeights);
+  const [weights, setWeights] = useState<number[]>(Array(criteria.length).fill(0));
 
   const [state, formAction, isPending] = useActionState(
     calculateMooraFromForm,
@@ -278,7 +278,8 @@ export function PublicCalculator({
                         type="number"
                         step="any"
                         min="0"
-                        value={weights[index] === 0 && weights.length > 0 ? "" : weights[index]}
+                        value={weights[index] === 0 ? "" : weights[index]}
+                        placeholder="misal: 80"
                         onChange={(e) => {
                           const newWeights = [...weights];
                           newWeights[index] = parseFloat(e.target.value) || 0;
