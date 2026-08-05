@@ -213,16 +213,18 @@ export function PublicCalculator({
                                 Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
                               </DialogDescription>
                             </DialogHeader>
-                            <div className="max-h-[60vh] overflow-y-auto pr-2 mt-2">
+                            <div className="max-h-[60vh] overflow-y-auto p-1 mt-4">
                               {(alternative.indicators || []).length > 0 ? (
-                                <ul className="space-y-3">
+                                <div className="grid grid-cols-1 gap-3">
                                   {(alternative.indicators || []).map((ind, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm text-foreground/90 bg-muted/50 p-3 rounded-lg border border-border/50">
-                                      <CheckCircle2 className="size-4 mt-0.5 text-emerald-500 shrink-0" />
-                                      <span className="leading-snug">{ind}</span>
-                                    </li>
+                                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card shadow-sm hover:border-emerald-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all">
+                                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400">
+                                        <CheckCircle2 className="h-4 w-4" />
+                                      </div>
+                                      <span className="text-sm font-medium leading-tight text-foreground/90">{ind}</span>
+                                    </div>
                                   ))}
-                                </ul>
+                                </div>
                               ) : (
                                 <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/30 rounded-xl border border-dashed border-border">
                                   <Info className="size-10 text-muted-foreground/50 mb-3" />
@@ -437,14 +439,16 @@ export function PublicCalculator({
                                 Berikut adalah indikator yang dipenuhi oleh alternatif ini.
                               </DialogDescription>
                             </DialogHeader>
-                            <div className="mt-4 max-h-[60vh] overflow-y-auto">
+                            <div className="mt-4 max-h-[60vh] overflow-y-auto p-1">
                               {(row.indicators || []).length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                   {(row.indicators || []).map((indicator, idx) => (
-                                    <Badge key={idx} variant="outline" className="font-normal text-xs bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800 px-2.5 py-1">
-                                      <CheckCircle2 className="size-3 mr-1.5 inline-block" />
-                                      {indicator}
-                                    </Badge>
+                                    <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card shadow-sm hover:border-emerald-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all">
+                                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400">
+                                        <CheckCircle2 className="h-4 w-4" />
+                                      </div>
+                                      <span className="text-sm font-medium leading-tight text-foreground/90">{indicator}</span>
+                                    </div>
                                   ))}
                                 </div>
                               ) : (
