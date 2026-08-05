@@ -245,38 +245,56 @@ export function PublicCalculator({
               <Badge variant="default" className="text-sm bg-emerald-500 hover:bg-emerald-600">
                 Total input: {formatNumber(totalWeight)}
               </Badge>
+              <Badge variant="outline" className="text-sm">
+                Total Normalisasi: {totalWeight > 0 ? "1.0000 (100%)" : "0.0000"}
+              </Badge>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {criteria.map((criterion, index) => (
-                <div key={criterion.id} className="group rounded-xl border border-border/70 bg-card/50 p-4 transition-all hover:border-emerald-400/40 hover:shadow-sm">
-                  <div className="mb-3 flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-mono text-xs font-semibold tracking-wider text-emerald-600 dark:text-emerald-300">
-                        {criterion.code}
-                      </p>
-                      <p className="mt-1 line-clamp-2 text-sm font-medium leading-tight text-foreground">
-                        {criterion.name}
-                      </p>
+              {criteria.map((criterion, index) => {
+                const weightValue = weights[index] || 0;
+                const normalizedWeight = totalWeight > 0 ? weightValue / totalWeight : 0;
+                
+                return (
+                  <div key={criterion.id} className="group rounded-xl border border-border/70 bg-card/50 p-4 transition-all hover:border-emerald-400/40 hover:shadow-sm">
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-mono text-xs font-semibold tracking-wider text-emerald-600 dark:text-emerald-300">
+                          {criterion.code}
+                        </p>
+                        <p className="mt-1 line-clamp-2 text-sm font-medium leading-tight text-foreground">
+                          {criterion.name}
+                        </p>
+                      </div>
+                      <Badge variant={criterion.type === "BENEFIT" ? "default" : "destructive"} className="text-[10px] uppercase tracking-wider">
+                        {criterion.type}
+                      </Badge>
                     </div>
-                    <Badge variant={criterion.type === "BENEFIT" ? "default" : "destructive"} className="text-[10px] uppercase tracking-wider">
-                      {criterion.type}
-                    </Badge>
+                    <div className="mt-auto pt-2 space-y-2">
+                      <Input
+                        name="weights"
+                        type="number"
+                        step="any"
+                        min="0"
+                        value={weights[index] === 0 && weights.length > 0 ? "" : weights[index]}
+                        onChange={(e) => {
+                          const newWeights = [...weights];
+                          newWeights[index] = parseFloat(e.target.value) || 0;
+                          setWeights(newWeights);
+                        }}
+                        className="h-9 focus-visible:ring-emerald-500"
+                        required
+                      />
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>Hasil Normalisasi:</span>
+                        <span className="font-mono font-medium text-emerald-600 dark:text-emerald-400">
+                          {formatNumber(normalizedWeight)} ({(normalizedWeight * 100).toFixed(1)}%)
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-auto pt-2">
-                    <Input
-                      name="weights"
-                      type="number"
-                      step="any"
-                      min="0"
-                      value={weights[index] ?? 0}
-                      onChange={(event) => updateWeight(index, event.target.value)}
-                      required
-                      className="h-9 focus-visible:ring-emerald-500"
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

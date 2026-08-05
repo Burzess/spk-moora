@@ -21,13 +21,18 @@ export default async function HomePage() {
       include: {
         evaluations: {
           select: {
-            indicatorNames: true,
+            indicatorIds: true,
             criteria: { select: { type: true } }
           }
         }
       },
     }),
+    prisma.subAlternative.findMany({
+      select: { id: true, name: true }
+    })
   ]);
+
+  const subAltMap = new Map(subAlternatives.map(sa => [sa.id, sa.name]));
 
   const initialWeights =
     criteria.length === DEFAULT_PUBLIC_WEIGHTS.length
@@ -39,8 +44,12 @@ export default async function HomePage() {
   const formattedAlternatives = alternatives.map(alt => {
     const indicators: string[] = [];
     alt.evaluations.forEach(ev => {
-      if (ev.criteria.type !== "COST" && ev.indicatorNames && ev.indicatorNames.length > 0) {
-        indicators.push(...ev.indicatorNames);
+      if (ev.criteria.type !== "COST" && ev.indicatorIds) {
+        try {
+          const ids = JSON.parse(ev.indicatorIds) as number[];
+          const names = ids.map(id => subAltMap.get(id)).filter(Boolean) as string[];
+          indicators.push(...names);
+        } catch (e) {}
       }
     });
     return {

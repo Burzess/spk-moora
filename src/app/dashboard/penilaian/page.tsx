@@ -11,12 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { prisma } from "@/lib/prisma";
-import { ActionForm } from "@/components/action-form";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { SlidersHorizontal } from "lucide-react";
-import { updateAllCriteriaWeightsAction } from "@/app/actions";
+import { WeightsForm } from "./weights-form";
 
 export default async function PenilaianPage() {
   const [alternatives, criteria, allEvaluations] = await Promise.all([
@@ -122,41 +119,7 @@ export default async function PenilaianPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
-            <ActionForm action={updateAllCriteriaWeightsAction} className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {criteria.map((criterion) => (
-                  <div key={criterion.id} className="group rounded-xl border border-border/70 bg-card/50 p-4 transition-all hover:border-emerald-400/40 hover:shadow-sm">
-                    <div className="mb-3 flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-mono text-xs font-semibold tracking-wider text-emerald-600 dark:text-emerald-300">
-                          {criterion.code}
-                        </p>
-                        <p className="mt-1 line-clamp-2 text-sm font-medium leading-tight text-foreground">
-                          {criterion.name}
-                        </p>
-                      </div>
-                      <Badge variant={criterion.type === "BENEFIT" ? "default" : "destructive"} className="text-[10px] uppercase tracking-wider">
-                        {criterion.type}
-                      </Badge>
-                    </div>
-                    <div className="mt-auto pt-2">
-                      <Input
-                        name={`weight_${criterion.id}`}
-                        type="number"
-                        step="any"
-                        min="0"
-                        defaultValue={criterion.weight}
-                        required
-                        className="h-9 focus-visible:ring-emerald-500"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-end">
-                <SubmitButton>Simpan Bobot</SubmitButton>
-              </div>
-            </ActionForm>
+            <WeightsForm criteria={criteria} />
           </CardContent>
         </Card>
       )}

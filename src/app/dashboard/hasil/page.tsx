@@ -33,23 +33,34 @@ export default async function HasilPage(
     selectedIds = alts.map(a => parseInt(a, 10)).filter(n => !isNaN(n));
   }
 
-  const allAlternatives = await prisma.alternative.findMany({ 
-    orderBy: { code: "asc" },
-    include: {
-      evaluations: {
-        select: {
-          indicatorNames: true,
-          criteria: { select: { type: true } }
+  const [allAlternatives, subAlternatives] = await Promise.all([
+    prisma.alternative.findMany({ 
+      orderBy: { code: "asc" },
+      include: {
+        evaluations: {
+          select: {
+            indicatorIds: true,
+            criteria: { select: { type: true } }
+          }
         }
       }
-    }
-  });
+    }),
+    prisma.subAlternative.findMany({
+      select: { id: true, name: true }
+    })
+  ]);
+
+  const subAltMap = new Map(subAlternatives.map(sa => [sa.id, sa.name]));
 
   const formattedAlternatives = allAlternatives.map(alt => {
     const indicators: string[] = [];
     alt.evaluations.forEach(ev => {
-      if (ev.criteria.type !== "COST" && ev.indicatorNames && ev.indicatorNames.length > 0) {
-        indicators.push(...ev.indicatorNames);
+      if (ev.criteria.type !== "COST" && ev.indicatorIds) {
+        try {
+          const ids = JSON.parse(ev.indicatorIds) as number[];
+          const names = ids.map(id => subAltMap.get(id)).filter(Boolean) as string[];
+          indicators.push(...names);
+        } catch (e) {}
       }
     });
     return { ...alt, indicators };
