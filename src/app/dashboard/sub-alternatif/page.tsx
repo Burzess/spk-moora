@@ -40,7 +40,7 @@ export default async function SubAlternatifPage({ searchParams }: SubAlternatifP
   return (
     <div className="space-y-6">
       <header className="rounded-xl border bg-card px-5 py-4">
-        <h1 className="font-heading text-2xl font-semibold">Penilaian Sub Alternatif (Indikator)</h1>
+        <h1 className="font-heading text-2xl font-semibold">Penilaian Indikator</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Pilih nama jalan (alternatif), lalu centang atau pilih indikator yang terpenuhi. Sistem akan otomatis melakukan normalisasi menjadi nilai angka 1-5 untuk perhitungan MOORA.
         </p>
