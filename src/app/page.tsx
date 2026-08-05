@@ -32,7 +32,7 @@ export default async function HomePage() {
     })
   ]);
 
-  const subAltMap = new Map(subAlternatives.map(sa => [sa.id, sa.name]));
+  const subAltMap = new globalThis.Map(subAlternatives.map(sa => [sa.id, sa.name]));
 
   const initialWeights =
     criteria.length === DEFAULT_PUBLIC_WEIGHTS.length

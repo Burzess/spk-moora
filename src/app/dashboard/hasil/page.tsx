@@ -50,7 +50,7 @@ export default async function HasilPage(
     })
   ]);
 
-  const subAltMap = new Map(subAlternatives.map(sa => [sa.id, sa.name]));
+  const subAltMap = new globalThis.Map(subAlternatives.map(sa => [sa.id, sa.name]));
 
   const formattedAlternatives = allAlternatives.map(alt => {
     const indicators: string[] = [];
