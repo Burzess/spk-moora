@@ -1,6 +1,15 @@
 import { calculateAuditMoora } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 function formatNumber(value: number) {
   return value.toLocaleString("id-ID", {
@@ -64,20 +73,30 @@ export default async function HasilPage() {
                         <td className="px-2 py-2">
                           <div className="font-medium">{row.alternativeName}</div>
                           {row.indicators && row.indicators.length > 0 && (
-                            <details className="mt-1 group">
-                              <summary className="text-[11px] text-muted-foreground cursor-pointer hover:text-foreground list-none flex items-center gap-1">
-                                <span className="border-b border-dashed border-muted-foreground/50 pb-0.5 group-open:border-transparent transition-colors">
-                                  Lihat Indikator ({row.indicators.length})
-                                </span>
-                              </summary>
-                              <div className="mt-2 flex flex-wrap gap-1 max-h-[120px] overflow-y-auto pr-1">
-                                {row.indicators.map((indicator, idx) => (
-                                  <Badge key={idx} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">
-                                    {indicator}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </details>
+                            <div className="mt-1">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="link" className="h-auto p-0 text-[11px] text-muted-foreground hover:text-foreground underline decoration-dashed underline-offset-2">
+                                    Detail Indikator ({row.indicators.length})
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
+                                    <DialogDescription>
+                                      Berikut adalah indikator yang dipenuhi oleh alternatif ini.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
+                                    {row.indicators.map((indicator, idx) => (
+                                      <Badge key={idx} variant="secondary" className="font-normal text-xs">
+                                        {indicator}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
                           )}
                         </td>
                         <td className="px-2 py-2 text-right">{formatNumber(row.benefitSum)}</td>
