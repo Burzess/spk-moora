@@ -60,6 +60,7 @@ export default async function HasilPage() {
                       <th className="px-2 py-2 text-left">Rank</th>
                       <th className="px-2 py-2 text-left">Kode</th>
                       <th className="px-2 py-2 text-left">Alternatif</th>
+                      <th className="px-2 py-2 text-center">Indikator</th>
                       <th className="px-2 py-2 text-right">Σ Benefit</th>
                       <th className="px-2 py-2 text-right">Σ Cost</th>
                       <th className="px-2 py-2 text-right">Yi</th>
@@ -72,31 +73,33 @@ export default async function HasilPage() {
                         <td className="px-2 py-2">{row.alternativeCode}</td>
                         <td className="px-2 py-2">
                           <div className="font-medium">{row.alternativeName}</div>
-                          {row.indicators && row.indicators.length > 0 && (
-                            <div className="mt-1">
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="link" className="h-auto p-0 text-[11px] text-muted-foreground hover:text-foreground underline decoration-dashed underline-offset-2">
-                                    Detail Indikator ({row.indicators.length})
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
-                                    <DialogDescription>
-                                      Berikut adalah indikator yang dipenuhi oleh alternatif ini.
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
-                                    {row.indicators.map((indicator, idx) => (
-                                      <Badge key={idx} variant="secondary" className="font-normal text-xs">
-                                        {indicator}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
-                            </div>
+                        </td>
+                        <td className="px-2 py-2 text-center">
+                          {row.indicators && row.indicators.length > 0 ? (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-7 text-[11px] px-2">
+                                  Lihat ({row.indicators.length})
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
+                                  <DialogDescription>
+                                    Berikut adalah indikator yang dipenuhi oleh alternatif ini.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
+                                  {row.indicators.map((indicator, idx) => (
+                                    <Badge key={idx} variant="secondary" className="font-normal text-xs">
+                                      {indicator}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">-</span>
                           )}
                         </td>
                         <td className="px-2 py-2 text-right">{formatNumber(row.benefitSum)}</td>

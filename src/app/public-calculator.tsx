@@ -349,6 +349,7 @@ export function PublicCalculator({
                     <TableHead className="w-[80px] text-center font-semibold text-foreground/80">Rank</TableHead>
                     <TableHead className="w-[100px] font-semibold text-foreground/80">Kode</TableHead>
                     <TableHead className="font-semibold text-foreground/80">Alternatif</TableHead>
+                    <TableHead className="text-center font-semibold text-foreground/80">Indikator</TableHead>
                     <TableHead className="text-right font-semibold text-foreground/80">Σ Benefit</TableHead>
                     <TableHead className="text-right font-semibold text-foreground/80">Σ Cost</TableHead>
                     <TableHead className="w-[120px] text-right font-bold text-emerald-700 dark:text-emerald-300">Skor (Yi)</TableHead>
@@ -383,31 +384,33 @@ export function PublicCalculator({
                           <MapPin className="h-3 w-3" />
                           Lihat Peta
                         </a>
-                        {row.indicators && row.indicators.length > 0 && (
-                          <div className="mt-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="link" className="h-auto p-0 text-[11px] text-muted-foreground hover:text-foreground underline decoration-dashed underline-offset-2">
-                                  Detail Indikator ({row.indicators.length})
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
-                                  <DialogDescription>
-                                    Berikut adalah indikator yang dipenuhi oleh alternatif ini.
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
-                                  {row.indicators.map((indicator, idx) => (
-                                    <Badge key={idx} variant="secondary" className="font-normal text-xs">
-                                      {indicator}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {row.indicators && row.indicators.length > 0 ? (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-7 text-[11px] px-2">
+                                Lihat ({row.indicators.length})
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
+                                <DialogDescription>
+                                  Berikut adalah indikator yang dipenuhi oleh alternatif ini.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
+                                {row.indicators.map((indicator, idx) => (
+                                  <Badge key={idx} variant="secondary" className="font-normal text-xs">
+                                    {indicator}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">-</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right text-emerald-600">
