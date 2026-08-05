@@ -3,6 +3,7 @@ import { calculateAuditMoora } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { MapPin, CheckCircle2, Circle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -50,39 +51,66 @@ export default async function HasilPage(
       </header>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Pilih Alternatif</CardTitle>
-          <CardDescription>Pilih minimal 2 alternatif untuk dibandingkan.</CardDescription>
+        <CardHeader className="bg-muted/40 pb-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-400/25 bg-blue-500/15 text-blue-600 dark:text-blue-300">
+              <MapPin className="h-5 w-5" />
+            </div>
+            <CardTitle className="font-heading text-xl">Pilih Alternatif</CardTitle>
+          </div>
+          <CardDescription className="ml-10">Pilih minimal 2 alternatif untuk dibandingkan dalam ranking.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <form method="GET" className="space-y-4">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        <CardContent className="pt-6">
+          <form method="GET" className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {allAlternatives.map((alt) => {
                 const isSelected = selectedIds?.includes(alt.id);
                 return (
                   <label
                     key={alt.id}
-                    className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 shadow-sm hover:bg-accent ${
-                      isSelected ? "border-primary bg-primary/5" : ""
-                    }`}
+                    className="group relative overflow-hidden rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer border-border bg-card/50 hover:border-blue-500/50 has-[:checked]:border-blue-400/60 has-[:checked]:bg-blue-500/10 has-[:checked]:ring-1 has-[:checked]:ring-blue-400/25 flex flex-col h-full gap-2"
                   >
                     <input
                       type="checkbox"
                       name="alt"
                       value={alt.id}
                       defaultChecked={isSelected}
-                      className="mt-1"
+                      className="sr-only"
                     />
-                    <div>
-                      <div className="font-medium text-sm leading-none">{alt.name}</div>
-                      <div className="mt-1 text-xs text-muted-foreground">{alt.code}</div>
+                    <div className="flex flex-col h-full gap-2">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div className="mt-0.5 shrink-0 transition-colors">
+                          <Circle className="h-5 w-5 text-muted-foreground group-hover:text-blue-500 group-has-[:checked]:hidden" />
+                          <CheckCircle2 className="h-5 w-5 text-blue-600 hidden group-has-[:checked]:block" />
+                        </div>
+                        <div className="flex-1">
+                          <Badge variant="outline" className="mb-1.5 font-mono text-xs text-muted-foreground">
+                            {alt.code}
+                          </Badge>
+                          <p className="font-medium leading-tight text-foreground/90 group-has-[:checked]:text-blue-900 group-has-[:checked]:dark:text-blue-100">
+                            {alt.name}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-auto border-t border-border/60 pt-2 pl-9">
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(alt.name)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 transition-colors hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+                        >
+                          <MapPin className="h-3 w-3" />
+                          Buka di Maps
+                        </a>
+                      </div>
                     </div>
                   </label>
                 );
               })}
             </div>
             <div className="flex justify-end">
-              <Button type="submit">Hitung Ranking</Button>
+              <Button type="submit" size="lg" className="w-full sm:w-auto font-semibold">Hitung Ranking</Button>
             </div>
           </form>
         </CardContent>
