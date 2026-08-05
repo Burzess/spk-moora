@@ -334,7 +334,7 @@ export async function updateCriteriaAction(_prevState: unknown, formData: FormDa
 }
 
 export async function updateAllCriteriaWeightsAction(
-    _prevState: { success: boolean; error?: string; message?: string },
+    _prevState: unknown,
     formData: FormData
 ) {
     try {
