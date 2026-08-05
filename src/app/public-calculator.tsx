@@ -48,6 +48,7 @@ interface PublicCalculatorProps {
     id: number;
     code: string;
     name: string;
+    indicators?: string[];
   }>;
   initialWeights: number[];
 }
@@ -183,7 +184,7 @@ export function PublicCalculator({
                         </div>
                       </div>
 
-                      <div className="mt-auto border-t border-border/60 pt-2 pl-9">
+                      <div className="mt-auto border-t border-border/60 pt-2 pl-9 flex items-center gap-3">
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(alternative.name)}`}
                           target="_blank"
@@ -191,8 +192,33 @@ export function PublicCalculator({
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 transition-colors hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
                         >
                           <MapPin className="h-3 w-3" />
-                          Buka di Maps
+                          Maps
                         </a>
+                        
+                        {alternative.indicators && alternative.indicators.length > 0 && (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs font-medium text-blue-700 hover:text-blue-900 hover:bg-transparent dark:text-blue-300 dark:hover:text-blue-200">
+                                Lihat Indikator ({alternative.indicators.length})
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Indikator - {alternative.name}</DialogTitle>
+                                <DialogDescription>
+                                  Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="max-h-[60vh] overflow-y-auto pr-2">
+                                <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                                  {alternative.indicators.map((ind, i) => (
+                                    <li key={i}>{ind}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -18,10 +18,13 @@ export default async function HomePage() {
     }),
     prisma.alternative.findMany({
       orderBy: { code: "asc" },
-      select: {
-        id: true,
-        code: true,
-        name: true,
+      include: {
+        evaluations: {
+          select: {
+            indicatorNames: true,
+            criteria: { select: { type: true } }
+          }
+        }
       },
     }),
   ]);
@@ -32,6 +35,21 @@ export default async function HomePage() {
       : Array.from({ length: criteria.length }, () =>
           criteria.length > 0 ? 1 / criteria.length : 0
         );
+
+  const formattedAlternatives = alternatives.map(alt => {
+    const indicators: string[] = [];
+    alt.evaluations.forEach(ev => {
+      if (ev.criteria.type !== "COST" && ev.indicatorNames && ev.indicatorNames.length > 0) {
+        indicators.push(...ev.indicatorNames);
+      }
+    });
+    return {
+      id: alt.id,
+      code: alt.code,
+      name: alt.name,
+      indicators,
+    };
+  });
 
   return (
     <div className="min-h-screen bg-background px-4 pb-16 pt-10 md:px-8">
@@ -90,7 +108,7 @@ export default async function HomePage() {
         ) : (
           <PublicCalculator
             criteria={criteria}
-            alternatives={alternatives}
+            alternatives={formattedAlternatives}
             initialWeights={initialWeights}
           />
         )}

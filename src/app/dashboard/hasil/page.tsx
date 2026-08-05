@@ -33,10 +33,30 @@ export default async function HasilPage(
     selectedIds = alts.map(a => parseInt(a, 10)).filter(n => !isNaN(n));
   }
 
-  const allAlternatives = await prisma.alternative.findMany({ orderBy: { code: "asc" } });
+  const allAlternatives = await prisma.alternative.findMany({ 
+    orderBy: { code: "asc" },
+    include: {
+      evaluations: {
+        select: {
+          indicatorNames: true,
+          criteria: { select: { type: true } }
+        }
+      }
+    }
+  });
+
+  const formattedAlternatives = allAlternatives.map(alt => {
+    const indicators: string[] = [];
+    alt.evaluations.forEach(ev => {
+      if (ev.criteria.type !== "COST" && ev.indicatorNames && ev.indicatorNames.length > 0) {
+        indicators.push(...ev.indicatorNames);
+      }
+    });
+    return { ...alt, indicators };
+  });
 
   if (!selectedIds || selectedIds.length === 0) {
-    selectedIds = allAlternatives.map(a => a.id);
+    selectedIds = formattedAlternatives.map(a => a.id);
   }
 
   const audit = await calculateAuditMoora(selectedIds);
@@ -63,7 +83,7 @@ export default async function HasilPage(
         <CardContent className="pt-6">
           <form method="GET" className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {allAlternatives.map((alt) => {
+              {formattedAlternatives.map((alt) => {
                 const isSelected = selectedIds?.includes(alt.id);
                 return (
                   <label
@@ -93,7 +113,7 @@ export default async function HasilPage(
                         </div>
                       </div>
                       
-                      <div className="mt-auto border-t border-border/60 pt-2 pl-9">
+                      <div className="mt-auto border-t border-border/60 pt-2 pl-9 flex items-center gap-3">
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(alt.name)}`}
                           target="_blank"
@@ -101,8 +121,33 @@ export default async function HasilPage(
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 transition-colors hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
                         >
                           <MapPin className="h-3 w-3" />
-                          Buka di Maps
+                          Maps
                         </a>
+                        
+                        {alt.indicators && alt.indicators.length > 0 && (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs font-medium text-blue-700 hover:text-blue-900 hover:bg-transparent dark:text-blue-300 dark:hover:text-blue-200">
+                                Lihat Indikator ({alt.indicators.length})
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Indikator - {alt.name}</DialogTitle>
+                                <DialogDescription>
+                                  Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="max-h-[60vh] overflow-y-auto pr-2">
+                                <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                                  {alt.indicators.map((ind, i) => (
+                                    <li key={i}>{ind}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
                       </div>
                     </div>
                   </label>
