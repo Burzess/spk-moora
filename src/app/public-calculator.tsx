@@ -112,20 +112,9 @@ export function PublicCalculator({
     );
   }
 
-  function normalizeWeights() {
-    if (weights.length === 0) {
-      return;
-    }
-
-    const sum = weights.reduce((accumulator, value) => accumulator + value, 0);
-    if (sum <= 0) {
-      const equalWeight = 1 / weights.length;
-      setWeights(weights.map(() => equalWeight));
-      return;
-    }
-
-    setWeights(weights.map((value) => value / sum));
-  }
+    // Normalisasi tidak lagi diperlukan di sisi klien karena sudah di tangani di server.
+    // Tapi kita bisa sediakan logic ini jika ingin memformat ulang.
+    // Untuk saat ini dibiarkan kosong atau dihapus penggunaannya.
 
   return (
     <div className="space-y-8">
@@ -222,27 +211,14 @@ export function PublicCalculator({
               <CardTitle className="font-heading text-xl">2. Atur Bobot Kriteria</CardTitle>
             </div>
             <CardDescription className="ml-10">
-              Sesuaikan bobot prioritas untuk setiap kriteria. Total bobot 1.0 direkomendasikan agar proporsional.
+              Masukkan bobot kriteria dalam skala angka bebas (misalnya 1-100). Sistem akan otomatis menormalisasinya menjadi persentase.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="mb-6 flex flex-wrap items-center gap-3">
-              {(() => {
-                const diff = totalWeight - 1.0;
-                const isWeightValid = (diff < 0 ? -diff : diff) < 0.001;
-                return (
-                  <Badge
-                    variant={isWeightValid ? "default" : "secondary"}
-                    className={`text-sm ${isWeightValid ? 'bg-emerald-500 hover:bg-emerald-600' : ''}`}
-                  >
-                    Total bobot: {formatNumber(totalWeight)}
-                  </Badge>
-                );
-              })()}
-              <Button type="button" variant="outline" size="sm" onClick={normalizeWeights} className="gap-2">
-                <RefreshCw className="h-3.5 w-3.5" />
-                Normalisasi Otomatis ke 1.0
-              </Button>
+              <Badge variant="default" className="text-sm bg-emerald-500 hover:bg-emerald-600">
+                Total input: {formatNumber(totalWeight)}
+              </Badge>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

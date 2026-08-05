@@ -102,11 +102,14 @@ function CriteriaFormFields({
           id={criterion ? `weight-${criterion.id}` : "weight"}
           name="weight"
           type="number"
-          step="0.001"
+          step="any"
           defaultValue={criterion?.weight ?? 0}
-          placeholder="0.2"
+          placeholder="misal: 60"
           required
         />
+        <p className="text-[10px] text-muted-foreground">
+          Masukkan bobot dalam skala bebas (misal 1-100). Akan otomatis dinormalisasi.
+        </p>
       </div>
     </>
   );
