@@ -3,7 +3,7 @@ import { calculateAuditMoora } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, CheckCircle2, Circle } from "lucide-react";
+import { MapPin, CheckCircle2, Circle, ListChecks, Info } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -141,25 +141,35 @@ export default async function HasilPage(
                               Lihat Indikator ({(alt.indicators || []).length})
                             </Button>
                           </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Indikator - {alt.name}</DialogTitle>
-                              <DialogDescription>
-                                Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="max-h-[60vh] overflow-y-auto pr-2">
-                              {(alt.indicators || []).length > 0 ? (
-                                <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-                                  {alt.indicators.map((ind, i) => (
-                                    <li key={i}>{ind}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <span className="text-sm text-muted-foreground">Tidak ada indikator benefit.</span>
-                              )}
-                            </div>
-                          </DialogContent>
+                          <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2 text-lg">
+                              <ListChecks className="size-5 text-primary" />
+                              Indikator - {alt.name}
+                            </DialogTitle>
+                            <DialogDescription>
+                              Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="max-h-[60vh] overflow-y-auto pr-2 mt-2">
+                            {(alt.indicators || []).length > 0 ? (
+                              <ul className="space-y-3">
+                                {alt.indicators.map((ind, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-foreground/90 bg-muted/50 p-3 rounded-lg border border-border/50">
+                                    <CheckCircle2 className="size-4 mt-0.5 text-emerald-500 shrink-0" />
+                                    <span className="leading-snug">{ind}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/30 rounded-xl border border-dashed border-border">
+                                <Info className="size-10 text-muted-foreground/50 mb-3" />
+                                <span className="text-sm font-medium text-muted-foreground">Tidak ada indikator benefit.</span>
+                                <span className="text-xs text-muted-foreground/70 mt-1">Alternatif ini belum memiliki atau hanya memenuhi indikator cost.</span>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
                         </Dialog>
                       </div>
                     </div>
@@ -225,22 +235,31 @@ export default async function HasilPage(
                                 Lihat ({(row.indicators || []).length})
                               </Button>
                             </DialogTrigger>
-                            <DialogContent>
+                            <DialogContent className="sm:max-w-md">
                               <DialogHeader>
-                                <DialogTitle>Indikator: {row.alternativeName}</DialogTitle>
+                                <DialogTitle className="flex items-center gap-2 text-lg">
+                                  <ListChecks className="size-5 text-primary" />
+                                  Indikator: {row.alternativeName}
+                                </DialogTitle>
                                 <DialogDescription>
                                   Berikut adalah indikator yang dipenuhi oleh alternatif ini.
                                 </DialogDescription>
                               </DialogHeader>
-                              <div className="flex flex-wrap gap-2 mt-4 max-h-[60vh] overflow-y-auto">
+                              <div className="mt-4 max-h-[60vh] overflow-y-auto">
                                 {(row.indicators || []).length > 0 ? (
-                                  row.indicators.map((indicator, idx) => (
-                                    <Badge key={idx} variant="secondary" className="font-normal text-xs">
-                                      {indicator}
-                                    </Badge>
-                                  ))
+                                  <div className="flex flex-wrap gap-2">
+                                    {row.indicators.map((indicator, idx) => (
+                                      <Badge key={idx} variant="outline" className="font-normal text-xs bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800 px-2.5 py-1">
+                                        <CheckCircle2 className="size-3 mr-1.5 inline-block" />
+                                        {indicator}
+                                      </Badge>
+                                    ))}
+                                  </div>
                                 ) : (
-                                  <span className="text-sm text-muted-foreground">Tidak ada indikator benefit.</span>
+                                  <div className="flex flex-col items-center justify-center p-6 text-center bg-muted/30 rounded-xl border border-dashed border-border">
+                                    <Info className="size-8 text-muted-foreground/50 mb-3" />
+                                    <span className="text-sm font-medium text-muted-foreground">Tidak ada indikator benefit.</span>
+                                  </div>
                                 )}
                               </div>
                             </DialogContent>
