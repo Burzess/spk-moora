@@ -122,6 +122,13 @@ export async function calculateMoora(
         throw new Error("Bobot harus berupa angka valid dan tidak negatif.");
     }
 
+    const totalWeight = parsedWeights.reduce((acc, val) => acc + val, 0);
+    if (totalWeight <= 0) {
+        throw new Error("Total bobot tidak boleh 0.");
+    }
+
+    const normalizedWeights = parsedWeights.map((weight) => weight / totalWeight);
+
     const alternativesFromDb = await prisma.alternative.findMany({
         where: { id: { in: uniqueAlternativeIds } },
         orderBy: { code: "asc" },
@@ -177,7 +184,7 @@ export async function calculateMoora(
             code: criterion.code,
             name: criterion.name,
             type: criterion.type,
-            weight: parsedWeights[index],
+            weight: normalizedWeights[index],
         };
     });
 
@@ -214,11 +221,10 @@ export async function calculateMooraFromForm(
 
     try {
         const result = await calculateMoora(selectedAlternativeIds, weights);
-        const weightValidation = validateWeightVector(weights);
 
         return {
             error: undefined,
-            weightInfo: weightValidation.message,
+            weightInfo: "Bobot telah otomatis dinormalisasi ke persentase.",
             selectedAlternativeIds,
             weights,
             result,
@@ -324,6 +330,40 @@ export async function updateCriteriaAction(_prevState: unknown, formData: FormDa
         return { success: true, message: "Kriteria berhasil diupdate." };
     } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : "Gagal mengupdate." };
+    }
+}
+
+export async function updateAllCriteriaWeightsAction(
+    _prevState: { success: boolean; error?: string; message?: string },
+    formData: FormData
+) {
+    try {
+        await requireAdmin();
+
+        const criteria = await prisma.criteria.findMany({ select: { id: true } });
+        
+        const updatePromises = criteria.map(criterion => {
+            const rawWeight = formData.get(`weight_${criterion.id}`);
+            const weight = parseFloatValue(rawWeight) ?? 0;
+            return prisma.criteria.update({
+                where: { id: criterion.id },
+                data: { weight }
+            });
+        });
+
+        await prisma.$transaction(updatePromises);
+
+        revalidatePath("/dashboard/kriteria");
+        revalidatePath("/dashboard/penilaian");
+        revalidatePath("/dashboard/hasil");
+        revalidatePath("/");
+
+        return { success: true, message: "Bobot kriteria berhasil disimpan." };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Terjadi kesalahan saat menyimpan bobot.",
+        };
     }
 }
 
