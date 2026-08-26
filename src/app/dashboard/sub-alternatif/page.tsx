@@ -2,6 +2,7 @@ import { SubAlternativeForm } from "./sub-alternative-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
+import { naturalSortByCode } from "@/lib/utils";
 
 interface SubAlternatifPageProps {
   searchParams: Promise<{
@@ -12,17 +13,19 @@ interface SubAlternatifPageProps {
 export default async function SubAlternatifPage({ searchParams }: SubAlternatifPageProps) {
   const params = await searchParams;
 
-  const [alternatives, criteria] = await Promise.all([
-    prisma.alternative.findMany({ orderBy: { code: "asc" } }),
+  const [rawAlternatives, rawCriteria] = await Promise.all([
+    prisma.alternative.findMany(),
     prisma.criteria.findMany({
       include: {
         subAlternatives: {
           orderBy: [{ id: "asc" }],
         },
       },
-      orderBy: { code: "asc" },
     }),
   ]);
+
+  const alternatives = naturalSortByCode(rawAlternatives);
+  const criteria = naturalSortByCode(rawCriteria);
 
   const selectedAlternativeId = Number.parseInt(params.alternativeId ?? "", 10);
   const selectedAlternative = alternatives.find(

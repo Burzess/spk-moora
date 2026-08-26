@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, CheckCircle2, Circle, ListChecks, Info } from "lucide-react";
+import { naturalSortByCode } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -33,9 +34,8 @@ export default async function HasilPage(
     selectedIds = alts.map(a => parseInt(a, 10)).filter(n => !isNaN(n));
   }
 
-  const [allAlternatives, subAlternatives] = await Promise.all([
+  const [rawAlternatives, subAlternatives] = await Promise.all([
     prisma.alternative.findMany({ 
-      orderBy: { code: "asc" },
       include: {
         evaluations: {
           select: {
@@ -50,6 +50,7 @@ export default async function HasilPage(
     })
   ]);
 
+  const allAlternatives = naturalSortByCode(rawAlternatives);
   const subAltMap = new globalThis.Map(subAlternatives.map(sa => [sa.id, sa.name]));
 
   const formattedAlternatives = allAlternatives.map(alt => {

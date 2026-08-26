@@ -16,6 +16,8 @@ import {
     type MooraResult,
 } from "@/lib/moora";
 import { prisma } from "@/lib/prisma";
+import { naturalSortByCode } from "@/lib/utils";
+
 
 const DEFAULT_AUDIT_WEIGHTS = [0.25, 0.15, 0.25, 0.1, 0.25] as const;
 
@@ -105,9 +107,8 @@ export async function calculateMoora(
         throw new Error("Pilih minimal 2 alternatif untuk dihitung.");
     }
 
-    const criteriaFromDb = await prisma.criteria.findMany({
-        orderBy: { code: "asc" },
-    });
+    const rawCriteriaFromDb = await prisma.criteria.findMany();
+    const criteriaFromDb = naturalSortByCode(rawCriteriaFromDb);
 
     if (criteriaFromDb.length === 0) {
         throw new Error("Data kriteria belum tersedia.");
@@ -129,10 +130,11 @@ export async function calculateMoora(
 
     const normalizedWeights = parsedWeights.map((weight) => weight / totalWeight);
 
-    const alternativesFromDb = await prisma.alternative.findMany({
+    const rawAlternativesFromDb = await prisma.alternative.findMany({
         where: { id: { in: uniqueAlternativeIds } },
-        orderBy: { code: "asc" },
     });
+    const alternativesFromDb = naturalSortByCode(rawAlternativesFromDb);
+
 
     if (alternativesFromDb.length !== uniqueAlternativeIds.length) {
         throw new Error("Sebagian alternatif tidak ditemukan.");
@@ -576,7 +578,8 @@ export async function saveAlternativeEvaluationsAction(
 export async function calculateAuditMoora(selectedIds?: number[]) {
     await requireAdmin();
 
-    const criteriaFromDb = await prisma.criteria.findMany({ orderBy: { code: "asc" } });
+    const rawCriteriaFromDb = await prisma.criteria.findMany();
+    const criteriaFromDb = naturalSortByCode(rawCriteriaFromDb);
     const criteriaCount = criteriaFromDb.length;
     const auditWeights = criteriaFromDb.map((c) => c.weight);
     
@@ -585,10 +588,11 @@ export async function calculateAuditMoora(selectedIds?: number[]) {
         alternativesQuery = { id: { in: selectedIds } };
     }
     
-    const alternatives = await prisma.alternative.findMany({ 
+    const rawAlternatives = await prisma.alternative.findMany({ 
         where: alternativesQuery,
-        orderBy: { code: "asc" } 
     });
+    const alternatives = naturalSortByCode(rawAlternatives);
+
 
     if (alternatives.length < 2 || criteriaCount === 0) {
         return {

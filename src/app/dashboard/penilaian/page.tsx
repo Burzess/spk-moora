@@ -14,15 +14,17 @@ import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { SlidersHorizontal } from "lucide-react";
 import { WeightsForm } from "./weights-form";
+import { naturalSortByCode } from "@/lib/utils";
 
 export default async function PenilaianPage() {
-  const [alternatives, criteria, allEvaluations] = await Promise.all([
-    prisma.alternative.findMany({ orderBy: { code: "asc" } }),
-    prisma.criteria.findMany({
-      orderBy: { code: "asc" },
-    }),
+  const [rawAlternatives, rawCriteria, allEvaluations] = await Promise.all([
+    prisma.alternative.findMany(),
+    prisma.criteria.findMany(),
     prisma.evaluation.findMany(),
   ]);
+
+  const alternatives = naturalSortByCode(rawAlternatives);
+  const criteria = naturalSortByCode(rawCriteria);
 
   // Matrix map for the table: key is `${altId}_${critId}`
   const matrixMap = new Map<string, number>();

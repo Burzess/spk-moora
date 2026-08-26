@@ -2,13 +2,13 @@ import { Calculator, Map } from "lucide-react";
 
 import { PublicCalculator } from "@/app/public-calculator";
 import { prisma } from "@/lib/prisma";
+import { naturalSortByCode } from "@/lib/utils";
 
 const DEFAULT_PUBLIC_WEIGHTS = [0.25, 0.15, 0.25, 0.1, 0.25];
 
 export default async function HomePage() {
-  const [criteria, alternatives, subAlternatives] = await Promise.all([
+  const [rawCriteria, rawAlternatives, subAlternatives] = await Promise.all([
     prisma.criteria.findMany({
-      orderBy: { code: "asc" },
       select: {
         id: true,
         code: true,
@@ -17,7 +17,6 @@ export default async function HomePage() {
       },
     }),
     prisma.alternative.findMany({
-      orderBy: { code: "asc" },
       include: {
         evaluations: {
           select: {
@@ -32,6 +31,8 @@ export default async function HomePage() {
     })
   ]);
 
+  const criteria = naturalSortByCode(rawCriteria);
+  const alternatives = naturalSortByCode(rawAlternatives);
   const subAltMap = new globalThis.Map(subAlternatives.map(sa => [sa.id, sa.name]));
 
   const initialWeights =

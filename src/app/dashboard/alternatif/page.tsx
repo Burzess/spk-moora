@@ -1,15 +1,17 @@
 import { AlternatifTable } from "@/app/dashboard/alternatif/alternatif-table";
 import { prisma } from "@/lib/prisma";
+import { naturalSortByCode } from "@/lib/utils";
 
 export default async function AlternatifPage() {
-  const alternatives = await prisma.alternative.findMany({
-    orderBy: { code: "asc" },
+  const alternativesFromDb = await prisma.alternative.findMany({
     select: {
       id: true,
       code: true,
       name: true,
     },
   });
+
+  const alternatives = naturalSortByCode(alternativesFromDb);
 
   return (
     <div className="space-y-6">

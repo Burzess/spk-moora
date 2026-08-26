@@ -9,15 +9,15 @@ datasource db {
 }
 
 model Criteria {
-  id          Int          @id @default(autoincrement())
-  code        String       @unique
-  name        String
-  type        String
-  weight      Float        @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id              Int              @id @default(autoincrement())
+  code            String           @unique
+  name            String
+  type            String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  weight          Float            @default(0)
+  evaluations     Evaluation[]
   subAlternatives SubAlternative[]
-  evaluations Evaluation[]
 
   @@map("criteria")
 }
@@ -29,8 +29,7 @@ model SubAlternative {
   value      Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  criteria Criteria @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
+  criteria   Criteria @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
 
   @@index([criteriaId])
   @@map("sub_alternatives")
@@ -52,12 +51,11 @@ model Evaluation {
   alternativeId Int
   criteriaId    Int
   value         Int
-  indicatorIds  String?     @default("[]")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-
-  alternative Alternative @relation(fields: [alternativeId], references: [id], onDelete: Cascade)
-  criteria    Criteria    @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
+  indicatorIds  String?     @default("[]")
+  alternative   Alternative @relation(fields: [alternativeId], references: [id], onDelete: Cascade)
+  criteria      Criteria    @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
 
   @@unique([alternativeId, criteriaId])
   @@index([criteriaId])

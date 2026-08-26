@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { CheckSquare, Square, CheckCircle2 } from "lucide-react";
+import { CheckSquare, Square, CheckCircle2, DollarSign } from "lucide-react";
 import { saveSubAlternativeAction } from "@/app/actions";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface SubAlternativeFormProps {
@@ -38,42 +40,35 @@ export function SubAlternativeForm({
   criteria,
   evaluations,
 }: SubAlternativeFormProps) {
-  // Initialize checked state per criteria
+  // Initialize checked state for BENEFIT criteria
   const [selectedIndicators, setSelectedIndicators] = useState<Record<number, number[]>>(() => {
     const initial: Record<number, number[]> = {};
 
     for (const criterion of criteria) {
+      if (criterion.type === "COST") continue;
+
       const evalItem = evaluations.find((e) => e.criteriaId === criterion.id);
       if (evalItem && evalItem.indicatorIds) {
         try {
           const parsed = JSON.parse(evalItem.indicatorIds);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            initial[criterion.id] = parsed;
-            continue;
+            // Filter only valid numeric IDs for sub-alternatives
+            const numIds = parsed.filter((item): item is number => typeof item === "number");
+            if (numIds.length > 0) {
+              initial[criterion.id] = numIds;
+              continue;
+            }
           }
         } catch {
           // fallback below
         }
       }
 
-      // If no indicatorIds saved yet, infer from evalItem.value or set defaults
       if (evalItem) {
         const val = evalItem.value;
-        if (criterion.type === "BENEFIT") {
-          // For benefit (3 indicators): val 3 -> 3 checked, val 2 -> 2 checked, val 1 -> 1 checked
-          const count = val >= 3 ? 3 : val === 2 ? 2 : 1;
-          initial[criterion.id] = criterion.subAlternatives.slice(0, count).map((sub) => sub.id);
-        } else {
-          // For cost (Biaya sewa, 5 options): pick option index val-1
-          const idx = Math.max(0, Math.min(val - 1, criterion.subAlternatives.length - 1));
-          if (criterion.subAlternatives[idx]) {
-            initial[criterion.id] = [criterion.subAlternatives[idx].id];
-          } else {
-            initial[criterion.id] = criterion.subAlternatives.slice(0, 1).map((s) => s.id);
-          }
-        }
+        const count = val >= 3 ? 3 : val === 2 ? 2 : 1;
+        initial[criterion.id] = criterion.subAlternatives.slice(0, count).map((sub) => sub.id);
       } else {
-        // Default: first indicator checked
         initial[criterion.id] = criterion.subAlternatives.slice(0, 1).map((s) => s.id);
       }
     }
@@ -81,35 +76,72 @@ export function SubAlternativeForm({
     return initial;
   });
 
-  const toggleIndicator = (criteriaId: number, indicatorId: number, isCost: boolean) => {
+  // Initialize rental price input state for COST criteria
+  const [costPrices, setCostPrices] = useState<Record<number, string>>(() => {
+    const initial: Record<number, string> = {};
+
+    for (const criterion of criteria) {
+      if (criterion.type !== "COST") continue;
+
+      const evalItem = evaluations.find((e) => e.criteriaId === criterion.id);
+      if (evalItem && evalItem.indicatorIds) {
+        try {
+          const parsed = JSON.parse(evalItem.indicatorIds);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const first = parsed[0];
+            if (typeof first === "string") {
+              initial[criterion.id] = first;
+              continue;
+            } else if (typeof first === "number") {
+              // If it was a subAlternative ID previously, find its name or fallback
+              const sub = criterion.subAlternatives.find((s) => s.id === first);
+              if (sub) {
+                initial[criterion.id] = sub.name;
+                continue;
+              }
+            }
+          }
+        } catch {
+          // If plain text was stored
+          initial[criterion.id] = evalItem.indicatorIds;
+          continue;
+        }
+      }
+
+      // Default empty if not set
+      initial[criterion.id] = "";
+    }
+
+    return initial;
+  });
+
+  const toggleBenefitIndicator = (criteriaId: number, indicatorId: number) => {
     setSelectedIndicators((prev) => {
       const current = prev[criteriaId] || [];
-      if (isCost) {
-        // Single select for COST (Biaya Sewa ranges)
-        return { ...prev, [criteriaId]: [indicatorId] };
+      if (current.includes(indicatorId)) {
+        const updated = current.filter((id) => id !== indicatorId);
+        return { ...prev, [criteriaId]: updated };
       } else {
-        // Multi select checkboxes for BENEFIT indicators
-        if (current.includes(indicatorId)) {
-          // Keep at least 1 checked or allow 0
-          const updated = current.filter((id) => id !== indicatorId);
-          return { ...prev, [criteriaId]: updated };
-        } else {
-          return { ...prev, [criteriaId]: [...current, indicatorId] };
-        }
+        return { ...prev, [criteriaId]: [...current, indicatorId] };
       }
     });
   };
 
-  // Compute normalized score based on user instructions and excel scale
+  const handleCostPriceChange = (criteriaId: number, value: string) => {
+    setCostPrices((prev) => ({
+      ...prev,
+      [criteriaId]: value,
+    }));
+  };
+
+  // Compute normalized score based on user instructions and scale
   const getNormalizedScore = (criterion: SubAlternativeFormProps["criteria"][0]) => {
-    const checked = selectedIndicators[criterion.id] || [];
     if (criterion.type === "COST") {
-      // For Biaya Sewa: find selected subAlternatives index
-      if (checked.length === 0) return 1;
-      const idx = criterion.subAlternatives.findIndex((sub) => sub.id === checked[0]);
-      return idx !== -1 ? idx + 1 : 1;
+      // Rental cost (COST) normalization score is strictly 1
+      return 1;
     } else {
       // For BENEFIT (3 indicators): 3 checked -> 3 (Sangat Baik), 2 checked -> 2 (Baik), <=1 checked -> 1 (Kurang)
+      const checked = selectedIndicators[criterion.id] || [];
       const count = checked.length;
       if (count >= 3) return 3;
       if (count === 2) return 2;
@@ -119,11 +151,7 @@ export function SubAlternativeForm({
 
   const getScoreLabel = (criterion: SubAlternativeFormProps["criteria"][0], score: number) => {
     if (criterion.type === "COST") {
-      if (score === 1) return "Sangat Baik (≤ 20% / ≤ Rp 500.000)";
-      if (score === 2) return "Lebih Baik (> 20% – 40%)";
-      if (score === 3) return "Cukup Baik (> 40% – 60%)";
-      if (score === 4) return "Kurang Baik (> 60% – 80%)";
-      return "Tidak Baik (> 80% / > Rp 1.400.001)";
+      return "Skor Tetap: 1 (Biaya Sewa / Cost)";
     } else {
       if (score === 3) return "Sangat Baik (3 Indikator Terpenuhi)";
       if (score === 2) return "Baik (2 Indikator Terpenuhi)";
@@ -138,7 +166,7 @@ export function SubAlternativeForm({
           Indikator untuk Alternatif: <span className="text-primary">{alternative.code} - {alternative.name}</span>
         </CardTitle>
         <CardDescription>
-          Centang indikator kondisi nyata di lokasi <span className="font-semibold">{alternative.name}</span>. Nilai akan otomatis dinormalisasi menjadi angka skala 1-5.
+          Isi harga sewa untuk kriteria Biaya Sewa dan centang indikator kondisi nyata di lokasi <span className="font-semibold">{alternative.name}</span>. Nilai akan otomatis dinormalisasi untuk perhitungan MOORA.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -151,6 +179,7 @@ export function SubAlternativeForm({
               const checkedIds = selectedIndicators[criterion.id] || [];
               const normalizedScore = getNormalizedScore(criterion);
               const scoreLabel = getScoreLabel(criterion, normalizedScore);
+              const costValue = costPrices[criterion.id] ?? "";
 
               return (
                 <div
@@ -165,7 +194,11 @@ export function SubAlternativeForm({
                   <input
                     type="hidden"
                     name={`criteria_${criterion.id}_indicators`}
-                    value={JSON.stringify(checkedIds)}
+                    value={
+                      isCost
+                        ? JSON.stringify(costValue.trim() ? [costValue.trim()] : [])
+                        : JSON.stringify(checkedIds)
+                    }
                   />
 
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b pb-3">
@@ -187,52 +220,63 @@ export function SubAlternativeForm({
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">
-                      {isCost
-                        ? "Pilih rentang persentase / biaya sewa:"
-                        : "Centang indikator yang terpenuhi di lokasi ini:"}
-                    </p>
+                  {isCost ? (
+                    <div className="space-y-3">
+                      <Label
+                        htmlFor={`cost_input_${criterion.id}`}
+                        className="text-xs font-medium text-muted-foreground flex items-center gap-1.5"
+                      >
+                        <DollarSign className="size-3.5 text-primary" />
+                        Input Harga Sewa di Lokasi Ini:
+                      </Label>
+                      <div className="relative max-w-md">
+                        <Input
+                          id={`cost_input_${criterion.id}`}
+                          type="text"
+                          value={costValue}
+                          onChange={(e) => handleCostPriceChange(criterion.id, e.target.value)}
+                          placeholder="Contoh: Rp 500.000 / bulan atau 500000"
+                          className="h-10 text-sm font-medium"
+                          required
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        * Input harga sewa akan disimpan sebagai informasi lokasi. Nilai normalisasi skor matriks MOORA untuk kriteria ini adalah <span className="font-bold text-primary">1</span>.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5">
+                      <p className="text-xs font-medium text-muted-foreground mb-2">
+                        Centang indikator yang terpenuhi di lokasi ini:
+                      </p>
 
-                    {criterion.subAlternatives.map((sub, index) => {
-                      const isChecked = checkedIds.includes(sub.id);
-                      return (
-                        <div
-                          key={sub.id}
-                          onClick={() => toggleIndicator(criterion.id, sub.id, isCost)}
-                          className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-all ${
-                            isChecked
-                              ? "border-primary bg-primary/5 text-foreground font-medium shadow-xs"
-                              : "border-border bg-background text-muted-foreground hover:bg-muted/50"
-                          }`}
-                        >
-                          <div className="text-primary flex-shrink-0">
-                            {isCost ? (
-                              <div
-                                className={`size-4 rounded-full border flex items-center justify-center ${
-                                  isChecked ? "border-primary bg-primary" : "border-muted-foreground"
-                                }`}
-                              >
-                                {isChecked && <div className="size-1.5 rounded-full bg-background" />}
-                              </div>
-                            ) : isChecked ? (
-                              <CheckSquare className="size-5 text-primary" />
-                            ) : (
-                              <Square className="size-5 text-muted-foreground" />
-                            )}
+                      {criterion.subAlternatives.map((sub) => {
+                        const isChecked = checkedIds.includes(sub.id);
+                        return (
+                          <div
+                            key={sub.id}
+                            onClick={() => toggleBenefitIndicator(criterion.id, sub.id)}
+                            className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-all ${
+                              isChecked
+                                ? "border-primary bg-primary/5 text-foreground font-medium shadow-xs"
+                                : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                            }`}
+                          >
+                            <div className="text-primary flex-shrink-0">
+                              {isChecked ? (
+                                <CheckSquare className="size-5 text-primary" />
+                              ) : (
+                                <Square className="size-5 text-muted-foreground" />
+                              )}
+                            </div>
+                            <span className="text-sm select-none">
+                              {sub.name}
+                            </span>
                           </div>
-                          <span className="text-sm select-none">
-                            {sub.name}
-                            {isCost && (
-                              <span className="ml-2 text-xs font-semibold text-primary">
-                                (Skor: {index + 1})
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -248,3 +292,4 @@ export function SubAlternativeForm({
     </Card>
   );
 }
+
