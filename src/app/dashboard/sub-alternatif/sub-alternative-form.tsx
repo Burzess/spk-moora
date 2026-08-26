@@ -35,6 +35,12 @@ interface SubAlternativeFormProps {
   }>;
 }
 
+function formatRupiahNumber(value: string): string {
+  const clean = value.replace(/\D/g, "");
+  if (!clean) return "";
+  return new Intl.NumberFormat("id-ID").format(parseInt(clean, 10));
+}
+
 export function SubAlternativeForm({
   alternative,
   criteria,
@@ -90,20 +96,20 @@ export function SubAlternativeForm({
           if (Array.isArray(parsed) && parsed.length > 0) {
             const first = parsed[0];
             if (typeof first === "string") {
-              initial[criterion.id] = first;
+              initial[criterion.id] = formatRupiahNumber(first);
               continue;
             } else if (typeof first === "number") {
               // If it was a subAlternative ID previously, find its name or fallback
               const sub = criterion.subAlternatives.find((s) => s.id === first);
               if (sub) {
-                initial[criterion.id] = sub.name;
+                initial[criterion.id] = formatRupiahNumber(sub.name);
                 continue;
               }
             }
           }
         } catch {
           // If plain text was stored
-          initial[criterion.id] = evalItem.indicatorIds;
+          initial[criterion.id] = formatRupiahNumber(evalItem.indicatorIds);
           continue;
         }
       }
@@ -128,9 +134,10 @@ export function SubAlternativeForm({
   };
 
   const handleCostPriceChange = (criteriaId: number, value: string) => {
+    const formatted = formatRupiahNumber(value);
     setCostPrices((prev) => ({
       ...prev,
-      [criteriaId]: value,
+      [criteriaId]: formatted,
     }));
   };
 
@@ -196,7 +203,7 @@ export function SubAlternativeForm({
                     name={`criteria_${criterion.id}_indicators`}
                     value={
                       isCost
-                        ? JSON.stringify(costValue.trim() ? [costValue.trim()] : [])
+                        ? JSON.stringify(costValue.trim() ? [`Rp ${costValue.trim()}`] : [])
                         : JSON.stringify(checkedIds)
                     }
                   />
@@ -229,19 +236,23 @@ export function SubAlternativeForm({
                         <DollarSign className="size-3.5 text-primary" />
                         Input Harga Sewa di Lokasi Ini:
                       </Label>
-                      <div className="relative max-w-md">
+                      <div className="flex max-w-md items-center rounded-lg border border-input bg-background shadow-xs focus-within:ring-2 focus-within:ring-primary">
+                        <span className="flex h-10 items-center justify-center border-r border-input bg-muted/60 px-3.5 text-sm font-semibold text-muted-foreground select-none">
+                          Rp
+                        </span>
                         <Input
                           id={`cost_input_${criterion.id}`}
                           type="text"
+                          inputMode="numeric"
                           value={costValue}
                           onChange={(e) => handleCostPriceChange(criterion.id, e.target.value)}
-                          placeholder="Contoh: Rp 500.000 / bulan atau 500000"
-                          className="h-10 text-sm font-medium"
+                          placeholder="misal: 1.000.000"
+                          className="h-10 border-0 shadow-none focus-visible:ring-0 text-sm font-medium"
                           required
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        * Input harga sewa akan disimpan sebagai informasi lokasi. Nilai normalisasi skor matriks MOORA untuk kriteria ini adalah <span className="font-bold text-primary">1</span>.
+                        * Input angka otomatis diformat ribuan. Nilai normalisasi skor matriks MOORA untuk kriteria ini adalah <span className="font-bold text-primary">1</span>.
                       </p>
                     </div>
                   ) : (
