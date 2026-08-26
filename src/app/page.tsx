@@ -44,12 +44,20 @@ export default async function HomePage() {
 
   const formattedAlternatives = alternatives.map(alt => {
     const indicators: string[] = [];
+    let rentalPrice: string | undefined = undefined;
     alt.evaluations.forEach(ev => {
       if (ev.criteria.type !== "COST" && ev.indicatorIds) {
         try {
           const ids = JSON.parse(ev.indicatorIds) as number[];
           const names = ids.map(id => subAltMap.get(id)).filter(Boolean) as string[];
           indicators.push(...names);
+        } catch (e) {}
+      } else if (ev.criteria.type === "COST" && ev.indicatorIds) {
+        try {
+          const parsed = JSON.parse(ev.indicatorIds);
+          if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "string") {
+            rentalPrice = parsed[0];
+          }
         } catch (e) {}
       }
     });
@@ -58,6 +66,7 @@ export default async function HomePage() {
       code: alt.code,
       name: alt.name,
       indicators,
+      rentalPrice,
     };
   });
 

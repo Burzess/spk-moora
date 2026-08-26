@@ -11,7 +11,8 @@ import {
   Medal,
   RefreshCw,
   ListChecks,
-  Info
+  Info,
+  DollarSign
 } from "lucide-react";
 
 import {
@@ -51,6 +52,7 @@ interface PublicCalculatorProps {
     code: string;
     name: string;
     indicators?: string[];
+    rentalPrice?: string;
   }>;
   initialWeights: number[];
 }
@@ -207,13 +209,30 @@ export function PublicCalculator({
                             <DialogHeader>
                               <DialogTitle className="flex items-center gap-2 text-lg">
                                 <ListChecks className="size-5 text-primary" />
-                                Indikator - {alternative.name}
+                                Detail Indikator & Biaya - {alternative.name}
                               </DialogTitle>
                               <DialogDescription>
-                                Daftar indikator (benefit) yang terpenuhi untuk alternatif ini.
+                                Rincian harga sewa dan indikator yang terpenuhi untuk alternatif ini.
                               </DialogDescription>
                             </DialogHeader>
                             <div className="max-h-[60vh] overflow-y-auto p-1 mt-4">
+                              {alternative.rentalPrice && (
+                                <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 dark:border-amber-500/30 dark:bg-amber-950/20 shadow-xs">
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                                      <DollarSign className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Harga Sewa Lokasi</p>
+                                      <p className="text-base font-bold text-foreground">{alternative.rentalPrice}</p>
+                                    </div>
+                                  </div>
+                                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300 text-[11px]">
+                                    Biaya Sewa
+                                  </Badge>
+                                </div>
+                              )}
+
                               {(alternative.indicators || []).length > 0 ? (
                                 <div className="grid grid-cols-1 gap-3">
                                   {(alternative.indicators || []).map((ind, i) => (
@@ -228,8 +247,8 @@ export function PublicCalculator({
                               ) : (
                                 <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/30 rounded-xl border border-dashed border-border">
                                   <Info className="size-10 text-muted-foreground/50 mb-3" />
-                                  <span className="text-sm font-medium text-muted-foreground">Tidak ada indikator benefit.</span>
-                                  <span className="text-xs text-muted-foreground/70 mt-1">Alternatif ini belum memiliki atau hanya memenuhi indikator cost.</span>
+                                  <span className="text-sm font-medium text-muted-foreground">Tidak ada indikator benefit lainnya.</span>
+                                  <span className="text-xs text-muted-foreground/70 mt-1">Alternatif ini belum memiliki atau hanya memenuhi kriteria biaya.</span>
                                 </div>
                               )}
                             </div>
@@ -433,13 +452,30 @@ export function PublicCalculator({
                             <DialogHeader>
                               <DialogTitle className="flex items-center gap-2 text-lg">
                                 <ListChecks className="size-5 text-primary" />
-                                Indikator: {row.alternativeName}
+                                Detail: {row.alternativeName}
                               </DialogTitle>
                               <DialogDescription>
-                                Berikut adalah indikator yang dipenuhi oleh alternatif ini.
+                                Berikut adalah rincian harga sewa dan indikator untuk alternatif ini.
                               </DialogDescription>
                             </DialogHeader>
                             <div className="mt-4 max-h-[60vh] overflow-y-auto p-1">
+                              {row.rentalPrice && (
+                                <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 dark:border-amber-500/30 dark:bg-amber-950/20 shadow-xs">
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                                      <DollarSign className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Harga Sewa Lokasi</p>
+                                      <p className="text-base font-bold text-foreground">{row.rentalPrice}</p>
+                                    </div>
+                                  </div>
+                                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300 text-[11px]">
+                                    Biaya Sewa
+                                  </Badge>
+                                </div>
+                              )}
+
                               {(row.indicators || []).length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                   {(row.indicators || []).map((indicator, idx) => (
@@ -454,7 +490,7 @@ export function PublicCalculator({
                               ) : (
                                 <div className="flex flex-col items-center justify-center p-6 text-center bg-muted/30 rounded-xl border border-dashed border-border">
                                   <Info className="size-8 text-muted-foreground/50 mb-3" />
-                                  <span className="text-sm font-medium text-muted-foreground">Tidak ada indikator benefit.</span>
+                                  <span className="text-sm font-medium text-muted-foreground">Tidak ada indikator benefit lainnya.</span>
                                 </div>
                               )}
                             </div>

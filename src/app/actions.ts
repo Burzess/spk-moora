@@ -162,8 +162,10 @@ export async function calculateMoora(
         let names: string[] = [];
         try {
             if (ev.indicatorIds) {
-                const ids = JSON.parse(ev.indicatorIds) as number[];
-                names = ids.map(id => subAltMap.get(id)).filter(Boolean) as string[];
+                const parsed = JSON.parse(ev.indicatorIds) as (number | string)[];
+                names = parsed
+                    .map(id => (typeof id === "number" ? subAltMap.get(id) : String(id)))
+                    .filter(Boolean) as string[];
             }
         } catch (e) {}
         return {

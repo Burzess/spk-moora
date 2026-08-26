@@ -31,6 +31,7 @@ export interface MooraRankingRow {
     costSum: number;
     yi: number;
     indicators: string[];
+    rentalPrice?: string;
 }
 
 export interface MooraResult {
@@ -135,10 +136,13 @@ export function calculateMooraMatrix(
         }
 
         const indicators: string[] = [];
+        let rentalPrice: string | undefined = undefined;
         const altEvals = evaluations.filter(e => e.alternativeId === alternative.id);
         altEvals.forEach(e => {
             const criterion = criteria.find(c => c.id === e.criteriaId);
-            if (criterion?.type !== "COST" && e.indicatorNames && e.indicatorNames.length > 0) {
+            if (criterion?.type === "COST" && e.indicatorNames && e.indicatorNames.length > 0) {
+                rentalPrice = e.indicatorNames[0];
+            } else if (criterion?.type !== "COST" && e.indicatorNames && e.indicatorNames.length > 0) {
                 indicators.push(...e.indicatorNames);
             }
         });
@@ -152,6 +156,7 @@ export function calculateMooraMatrix(
             costSum,
             yi: benefitSum - costSum,
             indicators,
+            rentalPrice,
         } satisfies MooraRankingRow;
     });
 
