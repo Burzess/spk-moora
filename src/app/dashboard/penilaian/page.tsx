@@ -16,6 +16,8 @@ import { SlidersHorizontal } from "lucide-react";
 import { WeightsForm } from "./weights-form";
 import { naturalSortByCode } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function PenilaianPage() {
   const [rawAlternatives, rawCriteria, allEvaluations] = await Promise.all([
     prisma.alternative.findMany(),

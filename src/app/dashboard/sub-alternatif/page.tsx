@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { naturalSortByCode } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 interface SubAlternatifPageProps {
   searchParams: Promise<{
     alternativeId?: string;

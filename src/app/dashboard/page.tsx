@@ -13,6 +13,8 @@ function formatNumber(value: number) {
     });
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
     const [criteriaCount, alternativesCount, evaluationsCount, audit] =
         await Promise.all([

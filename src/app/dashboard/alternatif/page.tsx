@@ -2,6 +2,8 @@ import { AlternatifTable } from "@/app/dashboard/alternatif/alternatif-table";
 import { prisma } from "@/lib/prisma";
 import { naturalSortByCode } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function AlternatifPage() {
   const alternativesFromDb = await prisma.alternative.findMany({
     select: {

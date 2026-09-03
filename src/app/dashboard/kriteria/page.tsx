@@ -1,6 +1,8 @@
 import { CriteriaTable } from "@/app/dashboard/kriteria/criteria-table";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function KriteriaPage() {
   const criteria = await prisma.criteria.findMany({
     orderBy: { code: "asc" },

@@ -16,7 +16,7 @@ import {
     type MooraResult,
 } from "@/lib/moora";
 import { prisma } from "@/lib/prisma";
-import { naturalSortByCode } from "@/lib/utils";
+import { calculateCostScore, naturalSortByCode } from "@/lib/utils";
 
 
 const DEFAULT_AUDIT_WEIGHTS = [0.25, 0.15, 0.25, 0.1, 0.25] as const;
@@ -402,15 +402,26 @@ export async function saveSubAlternativeAction(_prevState: unknown, formData: Fo
         }
 
         const criteria = await prisma.criteria.findMany({
-            select: { id: true },
+            select: { id: true, type: true },
         });
 
         const upsertQueries = criteria.map((criterion) => {
             const valStr = formData.get(`criteria_${criterion.id}_value`);
             const indStr = formData.get(`criteria_${criterion.id}_indicators`);
             
-            const value = parseInteger(valStr) ?? 1;
+            let value = parseInteger(valStr) ?? 1;
             const indicatorIds = typeof indStr === "string" ? indStr : "[]";
+
+            if (criterion.type === "COST" && typeof indStr === "string") {
+                try {
+                    const parsed = JSON.parse(indStr);
+                    if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "string") {
+                        value = calculateCostScore(parsed[0]);
+                    }
+                } catch {
+                    value = calculateCostScore(indStr);
+                }
+            }
 
             return prisma.evaluation.upsert({
                 where: {

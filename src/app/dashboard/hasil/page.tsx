@@ -21,6 +21,8 @@ function formatNumber(value: number) {
   });
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function HasilPage(
   props: {
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>

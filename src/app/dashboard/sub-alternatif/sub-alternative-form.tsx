@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { calculateCostScore, getCostScoreLabel } from "@/lib/utils";
 
 interface SubAlternativeFormProps {
   alternative: {
@@ -144,8 +145,8 @@ export function SubAlternativeForm({
   // Compute normalized score based on user instructions and scale
   const getNormalizedScore = (criterion: SubAlternativeFormProps["criteria"][0]) => {
     if (criterion.type === "COST") {
-      // Rental cost (COST) normalization score is strictly 1
-      return 1;
+      const costValue = costPrices[criterion.id] ?? "";
+      return calculateCostScore(costValue);
     } else {
       // For BENEFIT (3 indicators): 3 checked -> 3 (Sangat Baik), 2 checked -> 2 (Baik), <=1 checked -> 1 (Kurang)
       const checked = selectedIndicators[criterion.id] || [];
@@ -158,7 +159,7 @@ export function SubAlternativeForm({
 
   const getScoreLabel = (criterion: SubAlternativeFormProps["criteria"][0], score: number) => {
     if (criterion.type === "COST") {
-      return "Skor Tetap: 1 (Biaya Sewa / Cost)";
+      return getCostScoreLabel(score);
     } else {
       if (score === 3) return "Sangat Baik (3 Indikator Terpenuhi)";
       if (score === 2) return "Baik (2 Indikator Terpenuhi)";
@@ -251,9 +252,31 @@ export function SubAlternativeForm({
                           required
                         />
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        * Input angka otomatis diformat ribuan. Nilai normalisasi skor matriks MOORA untuk kriteria ini adalah <span className="font-bold text-primary">1</span>.
-                      </p>
+                      <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground space-y-2">
+                        <p className="font-semibold text-foreground flex items-center gap-1.5">
+                          <span>Rentang Skala Penilaian Biaya Sewa:</span>
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[11px]">
+                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 1 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            • ≤ Rp 500.000 $\rightarrow$ <span className="font-bold">Nilai 1</span>
+                          </div>
+                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 2 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            • Rp 500.001 - 800.000 $\rightarrow$ <span className="font-bold">Nilai 2</span>
+                          </div>
+                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 3 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            • Rp 800.001 - 1.100.000 $\rightarrow$ <span className="font-bold">Nilai 3</span>
+                          </div>
+                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 4 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            • Rp 1.100.001 - 1.400.000 $\rightarrow$ <span className="font-bold">Nilai 4</span>
+                          </div>
+                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 5 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            • &gt; Rp 1.400.000 $\rightarrow$ <span className="font-bold">Nilai 5</span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          * Input angka otomatis diformat ribuan. Skor normalisasi matriks MOORA untuk kriteria ini adalah <span className="font-bold text-primary">{normalizedScore}</span> ({scoreLabel}).
+                        </p>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-2.5">

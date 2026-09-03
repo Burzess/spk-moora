@@ -6,6 +6,8 @@ import { naturalSortByCode } from "@/lib/utils";
 
 const DEFAULT_PUBLIC_WEIGHTS = [0.25, 0.15, 0.25, 0.1, 0.25];
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [rawCriteria, rawAlternatives, subAlternatives] = await Promise.all([
     prisma.criteria.findMany({
