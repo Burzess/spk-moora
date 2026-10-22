@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckSquare, Square, CheckCircle2, DollarSign } from "lucide-react";
+import { CheckSquare, Square, CheckCircle2, DollarSign, ArrowRight } from "lucide-react";
 import { saveSubAlternativeAction } from "@/app/actions";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
@@ -257,20 +257,40 @@ export function SubAlternativeForm({
                           <span>Rentang Skala Penilaian Biaya Sewa:</span>
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[11px]">
-                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 1 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
-                            • ≤ Rp 500.000 $\rightarrow$ <span className="font-bold">Nilai 1</span>
+                          <div className={`p-1.5 rounded-md border transition-colors flex items-center justify-between ${normalizedScore === 1 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            <span>• ≤ Rp 500.000</span>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                              <ArrowRight className="size-3 text-muted-foreground" />
+                              <span className="font-bold">Nilai 1</span>
+                            </div>
                           </div>
-                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 2 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
-                            • Rp 500.001 - 800.000 $\rightarrow$ <span className="font-bold">Nilai 2</span>
+                          <div className={`p-1.5 rounded-md border transition-colors flex items-center justify-between ${normalizedScore === 2 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            <span>• Rp 500.001 - 800.000</span>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                              <ArrowRight className="size-3 text-muted-foreground" />
+                              <span className="font-bold">Nilai 2</span>
+                            </div>
                           </div>
-                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 3 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
-                            • Rp 800.001 - 1.100.000 $\rightarrow$ <span className="font-bold">Nilai 3</span>
+                          <div className={`p-1.5 rounded-md border transition-colors flex items-center justify-between ${normalizedScore === 3 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            <span>• Rp 800.001 - 1.100.000</span>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                              <ArrowRight className="size-3 text-muted-foreground" />
+                              <span className="font-bold">Nilai 3</span>
+                            </div>
                           </div>
-                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 4 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
-                            • Rp 1.100.001 - 1.400.000 $\rightarrow$ <span className="font-bold">Nilai 4</span>
+                          <div className={`p-1.5 rounded-md border transition-colors flex items-center justify-between ${normalizedScore === 4 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            <span>• Rp 1.100.001 - 1.400.000</span>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                              <ArrowRight className="size-3 text-muted-foreground" />
+                              <span className="font-bold">Nilai 4</span>
+                            </div>
                           </div>
-                          <div className={`p-1.5 rounded-md border transition-colors ${normalizedScore === 5 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
-                            • &gt; Rp 1.400.000 $\rightarrow$ <span className="font-bold">Nilai 5</span>
+                          <div className={`p-1.5 rounded-md border transition-colors flex items-center justify-between ${normalizedScore === 5 ? "bg-primary/10 border-primary font-semibold text-primary" : "bg-card/50 border-border"}`}>
+                            <span>• &gt; Rp 1.400.000</span>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                              <ArrowRight className="size-3 text-muted-foreground" />
+                              <span className="font-bold">Nilai 5</span>
+                            </div>
                           </div>
                         </div>
                         <p className="text-[11px] text-muted-foreground">
