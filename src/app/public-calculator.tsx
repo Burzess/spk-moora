@@ -12,7 +12,10 @@ import {
   RefreshCw,
   ListChecks,
   Info,
-  DollarSign
+  DollarSign,
+  CheckSquare,
+  Square,
+  RotateCcw
 } from "lucide-react";
 
 import {
@@ -90,6 +93,25 @@ export function PublicCalculator({
   );
 
   const selectedCount = selectedIds.length;
+
+  const allSelected =
+    alternatives.length > 0 && selectedIds.length === alternatives.length;
+  const isDefault =
+    alternatives.length >= 2 &&
+    selectedIds.length === 2 &&
+    alternatives.slice(0, 2).every((alt) => selectedIds.includes(alt.id));
+
+  const handleToggleAll = () => {
+    if (allSelected) {
+      setSelectedIds(alternatives.slice(0, 2).map((a) => a.id));
+    } else {
+      setSelectedIds(alternatives.map((a) => a.id));
+    }
+  };
+
+  const handleResetDefault = () => {
+    setSelectedIds(alternatives.slice(0, 2).map((a) => a.id));
+  };
   const totalWeight = useMemo(
     () => weights.reduce((sum, weight) => sum + (Number.isFinite(weight) ? weight : 0), 0),
     [weights]
@@ -137,13 +159,50 @@ export function PublicCalculator({
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="mb-5 flex items-center gap-3">
-              <Badge variant="secondary" className="border border-blue-400/25 bg-blue-500/15 text-blue-700 hover:bg-blue-500/25 dark:text-blue-200">
-                {selectedCount} lokasi dipilih
-              </Badge>
-              <p className="text-sm text-muted-foreground">
-                Klik pada kartu untuk memilih atau membatalkan pilihan.
-              </p>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="border border-blue-400/25 bg-blue-500/15 text-blue-700 hover:bg-blue-500/25 dark:text-blue-200">
+                  {selectedCount} dari {alternatives.length} lokasi dipilih
+                </Badge>
+                <p className="text-sm text-muted-foreground hidden sm:inline">
+                  Klik pada kartu untuk memilih atau membatalkan pilihan.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleToggleAll}
+                  className="h-8 gap-1.5 text-xs font-medium cursor-pointer"
+                >
+                  {allSelected ? (
+                    <>
+                      <Square className="size-3.5" />
+                      Batal Pilih Semua
+                    </>
+                  ) : (
+                    <>
+                      <CheckSquare className="size-3.5 text-primary" />
+                      Pilih Semua
+                    </>
+                  )}
+                </Button>
+
+                {!isDefault && alternatives.length >= 2 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleResetDefault}
+                    className="h-8 gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    <RotateCcw className="size-3" />
+                    Default (2)
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
