@@ -10,6 +10,7 @@ export default async function AlternatifPage() {
       id: true,
       code: true,
       name: true,
+      region: true,
     },
   });
 

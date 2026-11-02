@@ -13,6 +13,7 @@ export interface MooraAlternativeInput {
     id: number;
     code: string;
     name: string;
+    region?: string | null;
 }
 
 export interface MooraEvaluationInput {
@@ -27,6 +28,7 @@ export interface MooraRankingRow {
     alternativeId: number;
     alternativeCode: string;
     alternativeName: string;
+    region?: string | null;
     benefitSum: number;
     costSum: number;
     yi: number;
@@ -152,6 +154,7 @@ export function calculateMooraMatrix(
             alternativeId: alternative.id,
             alternativeCode: alternative.code,
             alternativeName: alternative.name,
+            region: alternative.region,
             benefitSum,
             costSum,
             yi: benefitSum - costSum,

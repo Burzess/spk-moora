@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
   ListChecks,
   Info,
   DollarSign,
+  Filter,
 } from "lucide-react";
 import {
   Dialog,
@@ -27,6 +28,7 @@ export interface AlternativeItem {
   id: number;
   code: string;
   name: string;
+  region?: string | null;
   indicators: string[];
   rentalPrice?: string;
 }
@@ -41,9 +43,37 @@ export function AlternativeFilter({
   initialSelectedIds,
 }: AlternativeFilterProps) {
   const [selectedIds, setSelectedIds] = useState<number[]>(initialSelectedIds);
+  const [selectedRegion, setSelectedRegion] = useState<string>("ALL");
+
+  // Extract distinct regions
+  const availableRegions = useMemo(() => {
+    const set = new Set<string>();
+    alternatives.forEach((a) => {
+      if (a.region?.trim()) {
+        set.add(a.region.trim());
+      }
+    });
+    return Array.from(set).sort();
+  }, [alternatives]);
+
+  // Alternatives filtered by active region tab
+  const displayedAlternatives = useMemo(() => {
+    if (selectedRegion === "ALL") return alternatives;
+    return alternatives.filter((a) => a.region?.trim() === selectedRegion);
+  }, [alternatives, selectedRegion]);
+
+  const displayedIds = useMemo(
+    () => displayedAlternatives.map((a) => a.id),
+    [displayedAlternatives]
+  );
 
   const allSelected =
     alternatives.length > 0 && selectedIds.length === alternatives.length;
+
+  const allInViewSelected =
+    displayedIds.length > 0 &&
+    displayedIds.every((id) => selectedIds.includes(id));
+
   const isDefault =
     alternatives.length >= 2 &&
     selectedIds.length === 2 &&
@@ -56,12 +86,22 @@ export function AlternativeFilter({
   };
 
   const handleToggleAll = () => {
-    if (allSelected) {
-      // If all are selected, revert to default 2 alternatives
-      setSelectedIds(alternatives.slice(0, 2).map((a) => a.id));
+    if (selectedRegion === "ALL") {
+      if (allSelected) {
+        // Revert to default 2 alternatives
+        setSelectedIds(alternatives.slice(0, 2).map((a) => a.id));
+      } else {
+        // Select all alternatives
+        setSelectedIds(alternatives.map((a) => a.id));
+      }
     } else {
-      // Select all alternatives
-      setSelectedIds(alternatives.map((a) => a.id));
+      if (allInViewSelected) {
+        // Deselect all in this region
+        setSelectedIds((prev) => prev.filter((id) => !displayedIds.includes(id)));
+      } else {
+        // Select all in this region (union with currently selected)
+        setSelectedIds((prev) => Array.from(new Set([...prev, ...displayedIds])));
+      }
     }
   };
 
@@ -71,7 +111,50 @@ export function AlternativeFilter({
 
   return (
     <form method="GET" className="space-y-6">
-      {/* Top Toolbar: Counter & Action Buttons */}
+      {/* 1. Region Filter Pills Toolbar */}
+      {availableRegions.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/40 p-3 border border-border/70">
+          <span className="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0 mr-1">
+            <Filter className="size-3.5 text-primary" />
+            Filter Wilayah:
+          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSelectedRegion("ALL")}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                selectedRegion === "ALL"
+                  ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                  : "bg-background text-muted-foreground hover:bg-card hover:text-foreground border border-border/60"
+              }`}
+            >
+              Semua Wilayah ({alternatives.length})
+            </button>
+            {availableRegions.map((region) => {
+              const count = alternatives.filter(
+                (a) => a.region?.trim() === region
+              ).length;
+              const isCurrent = selectedRegion === region;
+              return (
+                <button
+                  key={region}
+                  type="button"
+                  onClick={() => setSelectedRegion(region)}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    isCurrent
+                      ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                      : "bg-background text-muted-foreground hover:bg-card hover:text-foreground border border-border/60"
+                  }`}
+                >
+                  {region} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 2. Selection Action Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
         <div className="flex items-center gap-3">
           <Badge
@@ -81,7 +164,9 @@ export function AlternativeFilter({
             {selectedIds.length} dari {alternatives.length} alternatif dipilih
           </Badge>
           <span className="text-xs text-muted-foreground hidden sm:inline">
-            Pilih minimal 2 alternatif untuk dihitung
+            {selectedRegion === "ALL"
+              ? "Menampilkan semua alternatif lokasi"
+              : `Menampilkan alternatif wilayah ${selectedRegion}`}
           </span>
         </div>
 
@@ -93,15 +178,27 @@ export function AlternativeFilter({
             onClick={handleToggleAll}
             className="h-8 gap-1.5 text-xs font-medium cursor-pointer"
           >
-            {allSelected ? (
+            {selectedRegion === "ALL" ? (
+              allSelected ? (
+                <>
+                  <Square className="size-3.5" />
+                  Batal Pilih Semua
+                </>
+              ) : (
+                <>
+                  <CheckSquare className="size-3.5 text-primary" />
+                  Pilih Semua
+                </>
+              )
+            ) : allInViewSelected ? (
               <>
                 <Square className="size-3.5" />
-                Batal Pilih Semua
+                Batal Pilih ({selectedRegion})
               </>
             ) : (
               <>
                 <CheckSquare className="size-3.5 text-primary" />
-                Pilih Semua
+                Pilih Semua ({selectedRegion})
               </>
             )}
           </Button>
@@ -121,9 +218,14 @@ export function AlternativeFilter({
         </div>
       </div>
 
-      {/* Alternative Cards Grid */}
+      {/* 3. Hidden Inputs for All Selected Alternative IDs */}
+      {selectedIds.map((id) => (
+        <input key={id} type="hidden" name="alt" value={id} />
+      ))}
+
+      {/* 4. Alternative Cards Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {alternatives.map((alt) => {
+        {displayedAlternatives.map((alt) => {
           const isSelected = selectedIds.includes(alt.id);
           return (
             <div
@@ -134,14 +236,6 @@ export function AlternativeFilter({
                   : "border-border bg-card/50 hover:border-blue-500/50"
               }`}
             >
-              <input
-                type="checkbox"
-                name="alt"
-                value={alt.id}
-                checked={isSelected}
-                readOnly
-                className="sr-only"
-              />
               <div
                 className="flex items-start gap-4 flex-1 cursor-pointer"
                 onClick={() => toggleAlternative(alt.id)}
@@ -154,12 +248,22 @@ export function AlternativeFilter({
                   )}
                 </div>
                 <div className="flex-1">
-                  <Badge
-                    variant="outline"
-                    className="mb-1.5 font-mono text-xs text-muted-foreground"
-                  >
-                    {alt.code}
-                  </Badge>
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <Badge
+                      variant="outline"
+                      className="font-mono text-xs text-muted-foreground"
+                    >
+                      {alt.code}
+                    </Badge>
+                    {alt.region && (
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] font-medium bg-muted/60 text-muted-foreground border-border/80"
+                      >
+                        {alt.region}
+                      </Badge>
+                    )}
+                  </div>
                   <p
                     className={`font-medium leading-tight ${
                       isSelected
@@ -266,7 +370,13 @@ export function AlternativeFilter({
         })}
       </div>
 
-      {/* Submit Button & Validation */}
+      {displayedAlternatives.length === 0 && (
+        <div className="p-8 text-center bg-muted/20 rounded-xl border border-dashed border-border text-muted-foreground text-sm">
+          Tidak ada alternatif yang terdaftar di wilayah {selectedRegion}.
+        </div>
+      )}
+
+      {/* 5. Submit Button & Validation */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         {selectedIds.length < 2 ? (
           <p className="text-xs font-medium text-red-500">

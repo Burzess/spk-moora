@@ -196,6 +196,7 @@ export async function calculateMoora(
         id: alternative.id,
         code: alternative.code,
         name: alternative.name,
+        region: alternative.region,
     }));
 
     return calculateMooraMatrix(alternatives, criteria, evaluationsWithIndicators);
@@ -465,11 +466,13 @@ export async function createAlternativeAction(_prevState: unknown, formData: For
 
         const code = parseRequiredText(formData.get("code"), "Kode alternatif").toUpperCase();
         const name = parseRequiredText(formData.get("name"), "Nama alternatif");
+        const region = (formData.get("region") as string | null)?.trim() || null;
 
         await prisma.alternative.create({
             data: {
                 code,
                 name,
+                region,
             },
         });
 
@@ -493,12 +496,14 @@ export async function updateAlternativeAction(_prevState: unknown, formData: For
 
         const code = parseRequiredText(formData.get("code"), "Kode alternatif").toUpperCase();
         const name = parseRequiredText(formData.get("name"), "Nama alternatif");
+        const region = (formData.get("region") as string | null)?.trim() || null;
 
         await prisma.alternative.update({
             where: { id },
             data: {
                 code,
                 name,
+                region,
             },
         });
 

@@ -9,6 +9,7 @@ import {
 } from "@/app/actions";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/submit-button";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -36,13 +37,14 @@ interface AlternatifTableProps {
     id: number;
     code: string;
     name: string;
+    region?: string | null;
   }>;
 }
 
 function AlternatifFormFields({
   alternative,
 }: {
-  alternative?: { id: number; code: string; name: string };
+  alternative?: { id: number; code: string; name: string; region?: string | null };
 }) {
   return (
     <>
@@ -69,6 +71,18 @@ function AlternatifFormFields({
           defaultValue={alternative?.name ?? ""}
           placeholder="Lokasi Pusat Kota"
           required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={alternative ? `region-${alternative.id}` : "region"}>
+          Keterangan Wilayah
+        </Label>
+        <Input
+          id={alternative ? `region-${alternative.id}` : "region"}
+          name="region"
+          defaultValue={alternative?.region ?? ""}
+          placeholder="misal: Surabaya Utara, Surabaya Timur"
         />
       </div>
     </>
@@ -116,15 +130,16 @@ export function AlternatifTable({ alternatives }: AlternatifTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Kode</TableHead>
-              <TableHead>Nama</TableHead>
+              <TableHead className="w-[80px]">Kode</TableHead>
+              <TableHead>Nama Lokasi</TableHead>
+              <TableHead>Keterangan Wilayah</TableHead>
               <TableHead className="w-[220px] text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {alternatives.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
                   Belum ada data alternatif.
                 </TableCell>
               </TableRow>
@@ -132,7 +147,16 @@ export function AlternatifTable({ alternatives }: AlternatifTableProps) {
               alternatives.map((alternative) => (
                 <TableRow key={alternative.id}>
                   <TableCell className="font-medium">{alternative.code}</TableCell>
-                  <TableCell>{alternative.name}</TableCell>
+                  <TableCell className="font-semibold">{alternative.name}</TableCell>
+                  <TableCell>
+                    {alternative.region ? (
+                      <Badge variant="outline" className="font-normal text-xs bg-muted/40">
+                        {alternative.region}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-xs italic">-</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
                       <Dialog>

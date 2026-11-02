@@ -115,20 +115,20 @@ async function main() {
   }
 
   const alternativesData = [
-    { code: 'A1', name: 'Jalan kalisari' },
-    { code: 'A2', name: 'Jalan raya semampir' },
-    { code: 'A3', name: 'Dukuh setro' },
-    { code: 'A4', name: 'Jembatan suroboyo' },
-    { code: 'A5', name: 'Sentra bulak' },
-    { code: 'A6', name: 'Sidotopo wetan baru' },
-    { code: 'A7', name: 'Tambak wedi' },
+    { code: 'A1', name: 'Jalan kalisari', region: 'Surabaya Utara' },
+    { code: 'A2', name: 'Jalan raya semampir', region: 'Surabaya Timur' },
+    { code: 'A3', name: 'Dukuh setro', region: 'Surabaya Timur' },
+    { code: 'A4', name: 'Jembatan suroboyo', region: 'Surabaya Timur' },
+    { code: 'A5', name: 'Sentra bulak', region: 'Surabaya Timur' },
+    { code: 'A6', name: 'Sidotopo wetan baru', region: 'Surabaya Utara' },
+    { code: 'A7', name: 'Tambak wedi', region: 'Surabaya Utara' },
   ];
 
   for (const alt of alternativesData) {
     await prisma.alternative.upsert({
       where: { code: alt.code },
-      update: { name: alt.name },
-      create: { code: alt.code, name: alt.name },
+      update: { name: alt.name, region: alt.region },
+      create: { code: alt.code, name: alt.name, region: alt.region },
     });
   }
   console.log(`✔ Berhasil menyelaraskan ${alternativesData.length} data Alternatif.`);

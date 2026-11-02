@@ -39,6 +39,7 @@ model Alternative {
   id          Int          @id @default(autoincrement())
   code        String       @unique
   name        String
+  region      String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   evaluations Evaluation[]

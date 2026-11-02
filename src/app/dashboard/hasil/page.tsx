@@ -154,6 +154,11 @@ export default async function HasilPage(
                         <td className="px-2 py-2">{row.alternativeCode}</td>
                         <td className="px-2 py-2">
                           <div className="font-medium">{row.alternativeName}</div>
+                          {row.region && (
+                            <Badge variant="outline" className="mt-0.5 text-[10px] font-normal text-muted-foreground">
+                              {row.region}
+                            </Badge>
+                          )}
                         </td>
                         <td className="px-2 py-2 text-center">
                           <Dialog>
