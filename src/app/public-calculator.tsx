@@ -15,7 +15,8 @@ import {
   DollarSign,
   CheckSquare,
   Square,
-  RotateCcw
+  RotateCcw,
+  Filter
 } from "lucide-react";
 
 import {
@@ -54,6 +55,7 @@ interface PublicCalculatorProps {
     id: number;
     code: string;
     name: string;
+    region?: string | null;
     indicators?: string[];
     rentalPrice?: string;
   }>;
@@ -85,6 +87,7 @@ export function PublicCalculator({
   const [selectedIds, setSelectedIds] = useState<number[]>(
     alternatives.slice(0, 2).map((alternative) => alternative.id)
   );
+  const [selectedRegion, setSelectedRegion] = useState<string>("ALL");
   const [weights, setWeights] = useState<number[]>(Array(criteria.length).fill(0));
 
   const [state, formAction, isPending] = useActionState(
@@ -92,20 +95,57 @@ export function PublicCalculator({
     initialState
   );
 
+  // Extract distinct regions
+  const availableRegions = useMemo(() => {
+    const set = new Set<string>();
+    alternatives.forEach((a) => {
+      if (a.region?.trim()) {
+        set.add(a.region.trim());
+      }
+    });
+    return Array.from(set).sort();
+  }, [alternatives]);
+
+  // Alternatives filtered by active region tab
+  const displayedAlternatives = useMemo(() => {
+    if (selectedRegion === "ALL") return alternatives;
+    return alternatives.filter((a) => a.region?.trim() === selectedRegion);
+  }, [alternatives, selectedRegion]);
+
+  const displayedIds = useMemo(
+    () => displayedAlternatives.map((a) => a.id),
+    [displayedAlternatives]
+  );
+
   const selectedCount = selectedIds.length;
 
   const allSelected =
     alternatives.length > 0 && selectedIds.length === alternatives.length;
+
+  const allInViewSelected =
+    displayedIds.length > 0 &&
+    displayedIds.every((id) => selectedIds.includes(id));
+
   const isDefault =
     alternatives.length >= 2 &&
     selectedIds.length === 2 &&
     alternatives.slice(0, 2).every((alt) => selectedIds.includes(alt.id));
 
   const handleToggleAll = () => {
-    if (allSelected) {
-      setSelectedIds(alternatives.slice(0, 2).map((a) => a.id));
+    if (selectedRegion === "ALL") {
+      if (allSelected) {
+        setSelectedIds(alternatives.slice(0, 2).map((a) => a.id));
+      } else {
+        setSelectedIds(alternatives.map((a) => a.id));
+      }
     } else {
-      setSelectedIds(alternatives.map((a) => a.id));
+      if (allInViewSelected) {
+        // Deselect all in this region
+        setSelectedIds((prev) => prev.filter((id) => !displayedIds.includes(id)));
+      } else {
+        // Select all in this region (union with currently selected)
+        setSelectedIds((prev) => Array.from(new Set([...prev, ...displayedIds])));
+      }
     }
   };
 
@@ -120,12 +160,8 @@ export function PublicCalculator({
   function toggleAlternative(alternativeId: number) {
     setSelectedIds((previous) => {
       if (previous.includes(alternativeId)) {
-        if (previous.length <= 2) {
-          return previous;
-        }
         return previous.filter((id) => id !== alternativeId);
       }
-
       return [...previous, alternativeId];
     });
   }
@@ -159,14 +195,60 @@ export function PublicCalculator({
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
+            {/* 1. Region Filter Pills Toolbar */}
+            {availableRegions.length > 0 && (
+              <div className="mb-5 flex flex-wrap items-center gap-2 rounded-xl bg-muted/40 p-3 border border-border/70">
+                <span className="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0 mr-1">
+                  <Filter className="size-3.5 text-primary" />
+                  Filter Wilayah:
+                </span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRegion("ALL")}
+                    className={"px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer " + (
+                      selectedRegion === "ALL"
+                        ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                        : "bg-background text-muted-foreground hover:bg-card hover:text-foreground border border-border/60"
+                    )}
+                  >
+                    Semua Wilayah ({alternatives.length})
+                  </button>
+                  {availableRegions.map((region) => {
+                    const count = alternatives.filter(
+                      (a) => a.region?.trim() === region
+                    ).length;
+                    const isCurrent = selectedRegion === region;
+                    return (
+                      <button
+                        key={region}
+                        type="button"
+                        onClick={() => setSelectedRegion(region)}
+                        className={"px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer " + (
+                          isCurrent
+                            ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                            : "bg-background text-muted-foreground hover:bg-card hover:text-foreground border border-border/60"
+                        )}
+                      >
+                        {region} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 2. Selection Action Toolbar */}
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
               <div className="flex items-center gap-3">
                 <Badge variant="secondary" className="border border-blue-400/25 bg-blue-500/15 text-blue-700 hover:bg-blue-500/25 dark:text-blue-200">
                   {selectedCount} dari {alternatives.length} lokasi dipilih
                 </Badge>
-                <p className="text-sm text-muted-foreground hidden sm:inline">
-                  Klik pada kartu untuk memilih atau membatalkan pilihan.
-                </p>
+                <span className="text-xs text-muted-foreground hidden sm:inline">
+                  {selectedRegion === "ALL"
+                    ? "Menampilkan semua alternatif lokasi"
+                    : "Menampilkan alternatif wilayah " + selectedRegion}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -177,15 +259,27 @@ export function PublicCalculator({
                   onClick={handleToggleAll}
                   className="h-8 gap-1.5 text-xs font-medium cursor-pointer"
                 >
-                  {allSelected ? (
+                  {selectedRegion === "ALL" ? (
+                    allSelected ? (
+                      <>
+                        <Square className="size-3.5" />
+                        Batal Pilih Semua
+                      </>
+                    ) : (
+                      <>
+                        <CheckSquare className="size-3.5 text-primary" />
+                        Pilih Semua
+                      </>
+                    )
+                  ) : allInViewSelected ? (
                     <>
                       <Square className="size-3.5" />
-                      Batal Pilih Semua
+                      Batal Pilih ({selectedRegion})
                     </>
                   ) : (
                     <>
                       <CheckSquare className="size-3.5 text-primary" />
-                      Pilih Semua
+                      Pilih Semua ({selectedRegion})
                     </>
                   )}
                 </Button>
@@ -205,26 +299,25 @@ export function PublicCalculator({
               </div>
             </div>
 
+            {/* 3. Hidden Inputs for All Selected Alternative IDs */}
+            {selectedIds.map((id) => (
+              <input key={id} type="hidden" name="alternativeIds" value={id} />
+            ))}
+
+            {/* 4. Alternative Cards Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {alternatives.map((alternative) => {
+              {displayedAlternatives.map((alternative) => {
                 const isSelected = selectedIds.includes(alternative.id);
 
                 return (
                   <div
                     key={alternative.id}
-                    className={`group relative overflow-hidden rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${isSelected
+                    className={"group relative overflow-hidden rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md " + (
+                      isSelected
                         ? "border-blue-400/60 bg-blue-500/10 ring-1 ring-blue-400/25"
                         : "border-border bg-card/50 hover:border-blue-500/50"
-                      }`}
+                    )}
                   >
-                    <input
-                      type="checkbox"
-                      name="alternativeIds"
-                      value={alternative.id}
-                      checked={isSelected}
-                      readOnly
-                      className="sr-only"
-                    />
                     <div className="flex flex-col h-full gap-2">
                       <div
                         className="flex items-start gap-4 cursor-pointer flex-1"
@@ -238,10 +331,20 @@ export function PublicCalculator({
                           )}
                         </div>
                         <div className="flex-1">
-                          <Badge variant="outline" className="mb-1.5 font-mono text-xs text-muted-foreground">
-                            {alternative.code}
-                          </Badge>
-                          <p className={`font-medium leading-tight ${isSelected ? "text-blue-900 dark:text-blue-100" : "text-foreground/90"}`}>
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
+                              {alternative.code}
+                            </Badge>
+                            {alternative.region && (
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px] font-medium bg-muted/60 text-muted-foreground border-border/80"
+                              >
+                                {alternative.region}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className={"font-medium leading-tight " + (isSelected ? "text-blue-900 dark:text-blue-100" : "text-foreground/90")}>
                             {alternative.name}
                           </p>
                         </div>
@@ -249,7 +352,7 @@ export function PublicCalculator({
 
                       <div className="mt-auto border-t border-border/60 pt-2 pl-9 flex items-center gap-3">
                         <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(alternative.name)}`}
+                          href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(alternative.name)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 transition-colors hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
@@ -268,9 +371,10 @@ export function PublicCalculator({
                             <DialogHeader>
                               <DialogTitle className="flex items-center gap-2 text-lg">
                                 <ListChecks className="size-5 text-primary" />
-                                Detail Indikator & Biaya - {alternative.name}
+                                Detail: {alternative.name}
                               </DialogTitle>
                               <DialogDescription>
+                                {alternative.region ? "Wilayah: " + alternative.region + " • " : ""}
                                 Rincian harga sewa dan indikator yang terpenuhi untuk alternatif ini.
                               </DialogDescription>
                             </DialogHeader>
@@ -319,6 +423,12 @@ export function PublicCalculator({
                 );
               })}
             </div>
+
+            {displayedAlternatives.length === 0 && (
+              <div className="p-8 text-center bg-muted/20 rounded-xl border border-dashed border-border text-muted-foreground text-sm">
+                Tidak ada alternatif yang terdaftar di wilayah {selectedRegion}.
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -423,6 +533,12 @@ export function PublicCalculator({
                 )}
               </Button>
 
+              {selectedCount < 2 && (
+                <p className="mt-2 text-xs font-medium text-red-500">
+                  * Pilih minimal 2 lokasi untuk dapat menghitung rekomendasi MOORA.
+                </p>
+              )}
+
               {state.error && (
                 <div className="mt-4 w-full max-w-md rounded-lg border border-red-200 bg-red-50 p-3 text-left text-sm text-red-700 dark:border-red-400/40 dark:bg-red-500/10 dark:text-red-200">
                   <p className="font-semibold">Terjadi Kesalahan</p>
@@ -490,6 +606,12 @@ export function PublicCalculator({
                         <div className={`font-medium ${row.rank === 1 ? "text-amber-900 dark:text-amber-200" : "text-foreground/90"}`}>
                           {row.alternativeName}
                         </div>
+                        {row.region && (
+                          <Badge variant="outline" className="mt-0.5 text-[10px] font-normal text-muted-foreground">
+                            {row.region}
+                          </Badge>
+                        )}
+                        <div>
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row.alternativeName)}`}
                           target="_blank"
@@ -499,6 +621,7 @@ export function PublicCalculator({
                           <MapPin className="h-3 w-3" />
                           Lihat Peta
                         </a>
+                        </div>
                       </TableCell>
                       <TableCell className="text-center">
                         <Dialog>

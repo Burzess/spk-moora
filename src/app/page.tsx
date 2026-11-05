@@ -67,6 +67,7 @@ export default async function HomePage() {
       id: alt.id,
       code: alt.code,
       name: alt.name,
+      region: alt.region,
       indicators,
       rentalPrice,
     };
